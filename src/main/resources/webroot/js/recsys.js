@@ -6,7 +6,7 @@ function appendMovie2Row(rowId, movie, baseUrl) {
     var title = movie.title || movie.name;
     var imageUrl = movie.headerImage || ('./posters/' + id + '.jpg');
     var ratingValue = movie.positiveReviews || movie.positive || 0;
-    
+
     var year = movie.releaseYear || "";
     if (!year && movie.releaseDate) {
         // Try to extract year from "MMM dd, YYYY" or similar formats
@@ -22,12 +22,12 @@ function appendMovie2Row(rowId, movie, baseUrl) {
     if (Array.isArray(movie.genres)) {
         genresList = movie.genres;
     } else if (typeof movie.genres === 'string') {
-        genresList = movie.genres.split(',').map(function(item) { return item.trim(); });
+        genresList = movie.genres.split(',').map(function (item) { return item.trim(); });
     }
 
     var genresStr = "";
-    $.each(genresList, function(i, genre){
-        genresStr += ('<div class="genre"><a href="'+baseUrl+'collection.html?type=genre&value='+genre+'"><b>'+genre+'</b></a></div>');
+    $.each(genresList, function (i, genre) {
+        genresStr += ('<div class="genre"><a href="' + baseUrl + 'collection.html?type=genre&value=' + genre + '"><b>' + genre + '</b></a></div>');
     });
 
     var divstr = '<div class="movie-row-item" style="margin-right:5px">\
@@ -36,7 +36,7 @@ function appendMovie2Row(rowId, movie, baseUrl) {
                       <div class="movie-card-md1">\
                        <div class="card">\
                         <link-or-emit>\
-                         <a uisref="base.movie" href="./game.html?id='+id+'">\
+                         <a uisref="base.movie" href="./game.html?id='+ id + '">\
                          <span>\
                            <div class="poster">\
                             <img src="' + imageUrl + '" style="width:100%; height:100%; object-fit: cover;" />\
@@ -47,7 +47,7 @@ function appendMovie2Row(rowId, movie, baseUrl) {
                         <div class="overlay">\
                          <div class="above-fold">\
                           <link-or-emit>\
-                           <a uisref="base.movie" href="./game.html?id='+id+'">\
+                           <a uisref="base.movie" href="./game.html?id='+ id + '">\
                            <span><p class="title">' + title + '</p></span></a>\
                           </link-or-emit>\
                           <div class="rating-indicator">\
@@ -58,20 +58,20 @@ function appendMovie2Row(rowId, movie, baseUrl) {
                               <polygon fill-rule="evenodd" points="13.7714286 5.4939887 9.22142857 4.89188383 7.27142857 0.790044361 5.32142857 4.89188383 0.771428571 5.4939887 4.11428571 8.56096041 3.25071429 13.0202996 7.27142857 10.8282616 11.2921429 13.0202996 10.4285714 8.56096041" stroke="none"></polygon>\
                              </svg>\
                              <div class="rating-value">\
-                              '+ratingValue+'\
+                              '+ ratingValue + '\
                              </div>\
                             </div>\
                            </ml4-rating-or-prediction>\
                           </div>\
-                          <p class="year">'+year+'</p>\
+                          <p class="year">'+ year + '</p>\
                          </div>\
                          <div class="below-fold">\
                           <div class="genre-list">\
-                           '+genresStr+'\
+                           '+ genresStr + '\
                           </div>\
                           <div class="ratings-display">\
                            <div class="rating-average">\
-                            <span class="rating-large">'+ratingValue+'</span>\
+                            <span class="rating-large">'+ ratingValue + '</span>\
                             <span class="rating-total">Positives</span>\
                            </div>\
                           </div>\
@@ -82,26 +82,26 @@ function appendMovie2Row(rowId, movie, baseUrl) {
                      </movie-card-md1>\
                     </movie-card-smart>\
                    </div>';
-    $('#'+rowId).append(divstr);
+    $('#' + rowId).append(divstr);
 };
 
 
 function addRowFrame(pageId, rowName, rowId, baseUrl) {
- var divstr = '<div class="frontpage-section-top"> \
+    var divstr = '<div class="frontpage-section-top"> \
                 <div class="explore-header frontpage-section-header">\
-                 <a class="plainlink" title="go to the full list" href="'+baseUrl+'collection.html?type=genre&value='+rowName+'">' + rowName + '</a> \
+                 <a class="plainlink" title="go to the full list" href="'+ baseUrl + 'collection.html?type=genre&value=' + rowName + '">' + rowName + '</a> \
                 </div>\
                 <div class="movie-row">\
                  <button class="movie-row-back-button" onclick="scrollRow(\'' + rowId + '\', \'left\')">&#10094;</button>\
                  <div class="movie-row-bounds">\
-                  <div class="movie-row-scrollable" id="' + rowId +'" style="margin-left: 0px;">\
+                  <div class="movie-row-scrollable" id="' + rowId + '" style="margin-left: 0px;">\
                   </div>\
                  </div>\
                  <button class="movie-row-forward-button" onclick="scrollRow(\'' + rowId + '\', \'right\')">&#10095;</button>\
                  <div class="clearfix"></div>\
                 </div>\
                </div>'
-     $(pageId).prepend(divstr);
+    $(pageId).prepend(divstr);
 };
 
 function scrollRow(rowId, direction) {
@@ -122,28 +122,28 @@ function searchGame() {
 }
 
 function addRowFrameWithoutLink(pageId, rowName, rowId, baseUrl) {
- var divstr = '<div class="frontpage-section-top"> \
+    var divstr = '<div class="frontpage-section-top"> \
                 <div class="explore-header frontpage-section-header">\
-                 <a class="plainlink" title="go to the full list" href="'+baseUrl+'collection.html?type=genre&value='+rowName+'">' + rowName + '</a> \
+                 <a class="plainlink" title="go to the full list" href="'+ baseUrl + 'collection.html?type=genre&value=' + rowName + '">' + rowName + '</a> \
                 </div>\
                 <div class="movie-row">\
                  <div class="movie-row-bounds">\
-                  <div class="movie-row-scrollable" id="' + rowId +'" style="margin-left: 0px;">\
+                  <div class="movie-row-scrollable" id="' + rowId + '" style="margin-left: 0px;">\
                   </div>\
                  </div>\
                  <div class="clearfix"></div>\
                 </div>\
                </div>'
-     $(pageId).prepend(divstr);
+    $(pageId).prepend(divstr);
 };
 
 function addGenreRow(pageId, rowName, rowId, size, baseUrl) {
     addRowFrame(pageId, rowName, rowId, baseUrl);
-    $.getJSON(baseUrl + "getrecommendation?genre="+rowName+"&size="+size+"&sortby=positiveReviews", function(result){
+    $.getJSON(baseUrl + "getrecommendation?genre=" + rowName + "&size=" + size + "&sortby=positiveReviews", function (result) {
         // Handle new response format {games: [...], totalPages: ...}
         var games = result.games || result; // Fallback if backend not updated yet
-        $.each(games, function(i, movie){
-          appendMovie2Row(rowId, movie, baseUrl);
+        $.each(games, function (i, movie) {
+            appendMovie2Row(rowId, movie, baseUrl);
         });
     });
 };
@@ -151,52 +151,52 @@ function addGenreRow(pageId, rowName, rowId, size, baseUrl) {
 function addGenrePage(pageId, rowName, rowId, page, size, baseUrl) {
     var divstr = '<div class="frontpage-section-top"> \
                 <div class="explore-header frontpage-section-header">\
-                 <a class="plainlink" title="go to the full list" href="'+baseUrl+'collection.html?type=genre&value='+rowName+'">' + rowName + '</a> \
+                 <a class="plainlink" title="go to the full list" href="'+ baseUrl + 'collection.html?type=genre&value=' + rowName + '">' + rowName + '</a> \
                 </div>\
                 <div class="movie-row">\
                  <div class="movie-row-bounds">\
-                  <div class="movie-row-scrollable" id="' + rowId +'" style="margin-left: 0px; white-space: normal;">\
+                  <div class="movie-row-scrollable" id="' + rowId + '" style="margin-left: 0px; white-space: normal;">\
                   </div>\
                  </div>\
                  <div class="clearfix"></div>\
                 </div>\
                 <div class="pagination-container" style="text-align: center; margin-top: 20px; padding-bottom: 20px;">\
-                    <button class="btn btn-default" onclick="changePage(\''+rowName+'\', '+(page-1)+')" '+(page<=1?'disabled':'')+'>Previous</button>\
-                    <span style="margin: 0 15px; font-weight: bold; color: #fff;">Page '+page+'</span>\
-                    <button class="btn btn-default" id="next-page-btn" onclick="changePage(\''+rowName+'\', '+(page+1)+')">Next</button>\
+                    <button class="btn btn-default" onclick="changePage(\''+ rowName + '\', ' + (page - 1) + ')" ' + (page <= 1 ? 'disabled' : '') + '>Previous</button>\
+                    <span style="margin: 0 15px; font-weight: bold; color: #fff;">Page '+ page + '</span>\
+                    <button class="btn btn-default" id="next-page-btn" onclick="changePage(\''+ rowName + '\', ' + (page + 1) + ')">Next</button>\
                 </div>\
                </div>';
-               
+
     $(pageId).html(divstr);
-    
-    $.getJSON(baseUrl + "getrecommendation?genre="+rowName+"&size="+size+"&page="+page+"&sortby=positiveReviews", function(result){
+
+    $.getJSON(baseUrl + "getrecommendation?genre=" + rowName + "&size=" + size + "&page=" + page + "&sortby=positiveReviews", function (result) {
         var games = result.games;
         var totalPages = result.totalPages;
         var currentPage = result.currentPage;
 
-        $.each(games, function(i, movie){
-          appendMovie2Row(rowId, movie, baseUrl);
+        $.each(games, function (i, movie) {
+            appendMovie2Row(rowId, movie, baseUrl);
         });
-        
+
         // Update pagination controls
         var paginationHtml = '';
-        paginationHtml += '<button class="btn btn-default" onclick="changePage(\''+rowName+'\', '+(currentPage-1)+')" '+(currentPage<=1?'disabled':'')+'>Previous</button>';
-        paginationHtml += '<span style="margin: 0 15px; font-weight: bold; color: #fff;">Page '+currentPage+' of '+totalPages+'</span>';
-        paginationHtml += '<button class="btn btn-default" onclick="changePage(\''+rowName+'\', '+(currentPage+1)+')" '+(currentPage>=totalPages?'disabled':'')+'>Next</button>';
-        
+        paginationHtml += '<button class="btn btn-default" onclick="changePage(\'' + rowName + '\', ' + (currentPage - 1) + ')" ' + (currentPage <= 1 ? 'disabled' : '') + '>Previous</button>';
+        paginationHtml += '<span style="margin: 0 15px; font-weight: bold; color: #fff;">Page ' + currentPage + ' of ' + totalPages + '</span>';
+        paginationHtml += '<button class="btn btn-default" onclick="changePage(\'' + rowName + '\', ' + (currentPage + 1) + ')" ' + (currentPage >= totalPages ? 'disabled' : '') + '>Next</button>';
+
         // Jump to page
         paginationHtml += '<span style="margin-left: 20px; color: #ccc;">Go to: </span>';
-        paginationHtml += '<input type="number" id="jump-input-'+rowId+'" min="1" max="'+totalPages+'" style="width: 60px; color: #000; text-align: center;" value="'+currentPage+'">';
-        paginationHtml += '<button class="btn btn-default btn-sm" onclick="jumpToPage(\''+rowName+'\', \''+rowId+'\')">Go</button>';
+        paginationHtml += '<input type="number" id="jump-input-' + rowId + '" min="1" max="' + totalPages + '" style="width: 60px; color: #000; text-align: center;" value="' + currentPage + '">';
+        paginationHtml += '<button class="btn btn-default btn-sm" onclick="jumpToPage(\'' + rowName + '\', \'' + rowId + '\')">Go</button>';
 
         $(pageId).find('.pagination-container').html(paginationHtml);
     });
 }
 
 function jumpToPage(genre, rowId) {
-    var inputVal = $('#jump-input-'+rowId).val();
+    var inputVal = $('#jump-input-' + rowId).val();
     var page = parseInt(inputVal);
-    if(page && page > 0) {
+    if (page && page > 0) {
         changePage(genre, page);
     }
 }
@@ -220,16 +220,45 @@ function addMovieDetails(containerId, movieId, baseUrl) {
         var developer = movieObject.developer || movieObject.developers;
         var publisher = movieObject.publisher || movieObject.publishers;
         var positiveReviews = movieObject.positiveReviews || movieObject.positive || 0;
+        var negativeReviews = movieObject.negativeReviews || movieObject.negative || 0;
         var headerImage = movieObject.headerImage || ('./posters/' + id + '.jpg');
         var releaseDate = movieObject.releaseDate || 'N/A';
         var price = movieObject.price;
+
+        // New fields
+        var averagePlaytime = movieObject.averagePlaytimeForever || 0;
+        var medianPlaytime = movieObject.medianPlaytimeForever || 0;
+        var achievements = movieObject.achievements || 0;
+        var recommendations = movieObject.recommendations || 0;
+        var metacriticScore = movieObject.metacriticScore || 0;
+        var categories = movieObject.categories || '';
+
+        // Calculate positive rate
+        var totalReviews = positiveReviews + negativeReviews;
+        var positiveRate = totalReviews > 0 ? Math.round((positiveReviews / totalReviews) * 100) : 0;
+
+        // Determine review status
+        var reviewStatus = "No Reviews";
+        var reviewStatusClass = "review-status-none";
+        if (totalReviews > 0) {
+            if (positiveRate >= 95) { reviewStatus = "Overwhelmingly Positive"; reviewStatusClass = "review-status-positive"; }
+            else if (positiveRate >= 80) { reviewStatus = "Very Positive"; reviewStatusClass = "review-status-positive"; }
+            else if (positiveRate >= 70) { reviewStatus = "Mostly Positive"; reviewStatusClass = "review-status-positive"; }
+            else if (positiveRate >= 40) { reviewStatus = "Mixed"; reviewStatusClass = "review-status-mixed"; }
+            else if (positiveRate >= 20) { reviewStatus = "Mostly Negative"; reviewStatusClass = "review-status-negative"; }
+            else { reviewStatus = "Overwhelmingly Negative"; reviewStatusClass = "review-status-negative"; }
+        }
+
+        // Format playtime (minutes to hours)
+        var playtimeHours = (averagePlaytime / 60).toFixed(1);
+        var medianPlaytimeHours = (medianPlaytime / 60).toFixed(1);
 
         // Genres Processing
         var genresList = [];
         if (Array.isArray(movieObject.genres)) {
             genresList = movieObject.genres;
         } else if (typeof movieObject.genres === 'string') {
-            genresList = movieObject.genres.split(',').map(function(item) { return item.trim(); });
+            genresList = movieObject.genres.split(',').map(function (item) { return item.trim(); });
         }
 
         var genresHtml = "";
@@ -237,26 +266,36 @@ function addMovieDetails(containerId, movieId, baseUrl) {
             genresHtml += ('<span class="genre-tag"><a href="' + baseUrl + 'collection.html?type=genre&value=' + genre + '">' + genre + '</a></span>');
         });
 
+        // Categories Processing
+        var categoriesList = [];
+        if (typeof categories === 'string' && categories.trim() !== '') {
+            categoriesList = categories.split(',').map(function (item) { return item.trim(); });
+        }
+        var categoriesHtml = "";
+        $.each(categoriesList, function (i, cat) {
+            categoriesHtml += '<span class="category-tag">' + cat + '</span>';
+        });
+
         // Media processing
         var mediaItems = [];
-        
+
         // Add videos
         var videoSource = movieObject.productionVideos || movieObject.movies;
         if (videoSource) {
             var vids = videoSource.split(",");
-            $.each(vids, function(i, vid){
-                if(vid.trim() !== "") {
-                    mediaItems.push({type: 'video', src: vid.trim()});
+            $.each(vids, function (i, vid) {
+                if (vid.trim() !== "") {
+                    mediaItems.push({ type: 'video', src: vid.trim() });
                 }
             });
         }
-        
+
         // Add screenshots
         if (movieObject.screenshots) {
             var shots = movieObject.screenshots.split(",");
-            $.each(shots, function(i, shot){
-                if(shot.trim() !== "") {
-                    mediaItems.push({type: 'image', src: shot.trim()});
+            $.each(shots, function (i, shot) {
+                if (shot.trim() !== "") {
+                    mediaItems.push({ type: 'image', src: shot.trim() });
                 }
             });
         }
@@ -270,16 +309,16 @@ function addMovieDetails(containerId, movieId, baseUrl) {
                 mainDisplayHtml = '<img id="main-media-image" src="' + mediaItems[0].src + '" style="width:100%; height:100%; object-fit: contain;"><video id="main-media-video" width="100%" height="100%" controls style="display:none;"></video>';
             }
         } else {
-             mainDisplayHtml = '<img id="main-media-image" src="' + headerImage + '" style="width:100%; height:100%; object-fit: contain;">';
+            mainDisplayHtml = '<img id="main-media-image" src="' + headerImage + '" style="width:100%; height:100%; object-fit: contain;">';
         }
 
         // Slider
         var sliderHtml = "";
-        $.each(mediaItems, function(i, item){
-            if(item.type === 'video') {
-                sliderHtml += '<div class="slider-item" onclick="changeMainMedia(\'video\', \''+item.src+'\')"><video src="'+item.src+'" style="width:100%; height:100%; object-fit: cover;" muted></video></div>';
+        $.each(mediaItems, function (i, item) {
+            if (item.type === 'video') {
+                sliderHtml += '<div class="slider-item" onclick="changeMainMedia(\'video\', \'' + item.src + '\')"><video src="' + item.src + '" style="width:100%; height:100%; object-fit: cover;" muted></video></div>';
             } else {
-                sliderHtml += '<div class="slider-item" onclick="changeMainMedia(\'image\', \''+item.src+'\')"><img src="'+item.src+'" style="width:100%; height:100%; object-fit: cover;"></div>';
+                sliderHtml += '<div class="slider-item" onclick="changeMainMedia(\'image\', \'' + item.src + '\')"><img src="' + item.src + '" style="width:100%; height:100%; object-fit: cover;"></div>';
             }
         });
 
@@ -288,15 +327,15 @@ function addMovieDetails(containerId, movieId, baseUrl) {
 
         var languages = movieObject.supportedLanguages || 'N/A';
         if (languages !== 'N/A' && languages.startsWith('[') && languages.endsWith(']')) {
-             var content = languages.substring(1, languages.length - 1);
-             if (content.trim() === "") {
-                 languages = "N/A";
-             } else {
-                 var parts = content.split(",");
-                 languages = parts.map(function(lang) {
-                     return lang.trim().replace(/^['"]|['"]$/g, '');
-                 }).join(", ");
-             }
+            var content = languages.substring(1, languages.length - 1);
+            if (content.trim() === "") {
+                languages = "N/A";
+            } else {
+                var parts = content.split(",");
+                languages = parts.map(function (lang) {
+                    return lang.trim().replace(/^['"]|['"]$/g, '');
+                }).join(", ");
+            }
         }
 
         var movieDetails = `
@@ -306,9 +345,9 @@ function addMovieDetails(containerId, movieId, baseUrl) {
                         <h1 class="game-title" style="color: #fff; margin-bottom: 20px;">${title}</h1>
                     </div>
                 </div>
-                
+
                 <div class="row">
-                    <!-- Left Column: Media -->
+                    <!-- Left Column: Media + Description -->
                     <div class="col-md-8">
                         <div class="main-media-container" style="background: #000; height: 400px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
                             ${mainDisplayHtml}
@@ -316,13 +355,21 @@ function addMovieDetails(containerId, movieId, baseUrl) {
                         <div class="media-slider" style="display: flex; overflow-x: auto; gap: 5px; padding-bottom: 10px;">
                             ${sliderHtml}
                         </div>
+
+                        <!-- Description Section - Now inside left column -->
+                        <div class="game-description" style="margin-top: 20px;">
+                            <h3 style="color: #fff; border-bottom: 1px solid #3a4b5c; padding-bottom: 10px;">About This Game</h3>
+                            <div style="font-size: 14px; line-height: 1.6; color: #acb2b8;">
+                                ${description}
+                            </div>
+                        </div>
                     </div>
-                    
+
                     <!-- Right Column: Info -->
                     <div class="col-md-4">
                         <div class="game-info-panel">
                             <img src="${headerImage}" style="width: 100%; margin-bottom: 20px;">
-                            
+
                             <div class="info-row">
                                 <span class="info-label">Release Date:</span>
                                 <span class="info-value">${releaseDate}</span>
@@ -339,48 +386,80 @@ function addMovieDetails(containerId, movieId, baseUrl) {
                                 <span class="info-label">Price:</span>
                                 <span class="info-value price-tag">${priceDisplay}</span>
                             </div>
-                             <div class="info-row">
-                                <span class="info-label">Reviews:</span>
-                                <span class="info-value">${positiveReviews} Positive</span>
+
+                            <!-- Reviews Section - Enhanced -->
+                            <div class="info-row" style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 4px;">
+                                <div style="margin-bottom: 8px;">
+                                    <span class="info-label">User Reviews:</span>
+                                    <span class="${reviewStatusClass}" style="font-weight: bold;">${reviewStatus}</span>
+                                </div>
+                                <div style="display: flex; gap: 15px; font-size: 13px;">
+                                    <span style="color: #66c0f4;">Positive: ${positiveReviews.toLocaleString()}</span>
+                                    <span style="color: #a34c25;">Negative: ${negativeReviews.toLocaleString()}</span>
+                                    <span style="color: #8f98a0;">(${positiveRate}%)</span>
+                                </div>
                             </div>
-                            
+
+                            <!-- Playtime Stats -->
+                            <div class="info-row" style="margin-top: 10px;">
+                                <span class="info-label">Avg Playtime:</span>
+                                <span class="info-value">${playtimeHours} hours</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Median Playtime:</span>
+                                <span class="info-value">${medianPlaytimeHours} hours</span>
+                            </div>
+
+                            <!-- Additional Stats -->
+                            ${metacriticScore > 0 ? `
+                            <div class="info-row">
+                                <span class="info-label">Metacritic:</span>
+                                <span class="info-value metacritic-score" style="background: ${metacriticScore >= 75 ? '#66cc33' : metacriticScore >= 50 ? '#ffcc33' : '#ff0000'}; color: #fff; padding: 2px 8px; border-radius: 3px; font-weight: bold;">${metacriticScore}</span>
+                            </div>` : ''}
+                            ${achievements > 0 ? `
+                            <div class="info-row">
+                                <span class="info-label">Achievements:</span>
+                                <span class="info-value">${achievements}</span>
+                            </div>` : ''}
+                            ${recommendations > 0 ? `
+                            <div class="info-row">
+                                <span class="info-label">Recommendations:</span>
+                                <span class="info-value">${recommendations.toLocaleString()}</span>
+                            </div>` : ''}
+
                             <div class="info-section" style="margin-top: 20px;">
                                 <div class="info-label">Supported Languages:</div>
                                 <div class="info-value small-text" style="max-height: 100px; overflow-y: auto;">${languages}</div>
                             </div>
-                            
+
                             <div class="info-section" style="margin-top: 20px;">
                                 <div class="info-label">Genres:</div>
                                 <div class="genre-list">
                                     ${genresHtml}
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Description Section -->
-                <div class="row" style="margin-top: 30px;">
-                    <div class="col-md-8">
-                        <div class="game-description">
-                            <h3 style="color: #fff; border-bottom: 1px solid #3a4b5c; padding-bottom: 10px;">About This Game</h3>
-                            <div style="font-size: 14px; line-height: 1.6; color: #acb2b8;">
-                                ${description}
-                            </div>
+                            ${categoriesHtml ? `
+                            <div class="info-section" style="margin-top: 15px;">
+                                <div class="info-label">Categories:</div>
+                                <div class="category-list" style="margin-top: 5px;">
+                                    ${categoriesHtml}
+                                </div>
+                            </div>` : ''}
                         </div>
                     </div>
                 </div>
             </div>
         `;
-        $("#"+containerId).prepend(movieDetails);
+        $("#" + containerId).prepend(movieDetails);
     });
 };
 
 // Helper function for media switching
-window.changeMainMedia = function(type, src) {
+window.changeMainMedia = function (type, src) {
     var vid = document.getElementById('main-media-video');
     var img = document.getElementById('main-media-image');
-    
+
     if (type === 'video') {
         img.style.display = 'none';
         vid.style.display = 'block';
@@ -394,15 +473,15 @@ window.changeMainMedia = function(type, src) {
     }
 };
 
-$(document).ready(function() {
+$(document).ready(function () {
     // Bind search button click
-    $('.base-header-search-box button').on('click', function(e) {
+    $('.base-header-search-box button').on('click', function (e) {
         e.preventDefault();
         searchGame();
     });
 
     // Bind enter key in search input
-    $('#omnisearch-typeahead').on('keypress', function(e) {
+    $('#omnisearch-typeahead').on('keypress', function (e) {
         if (e.which === 13) {
             e.preventDefault();
             searchGame();

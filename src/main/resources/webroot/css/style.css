@@ -255,8 +255,48 @@ a {
     width: 5px;
 }
 .info-value::-webkit-scrollbar-track {
-    background: #1b2838; 
+    background: #1b2838;
 }
 .info-value::-webkit-scrollbar-thumb {
-    background: #3a4b5c; 
+    background: #3a4b5c;
+}
+
+/* Category Tags */
+.category-tag {
+    display: inline-block;
+    background: #4a5568;
+    color: #c6d4df;
+    padding: 2px 6px;
+    margin: 2px;
+    border-radius: 2px;
+    font-size: 10px;
+    border: 1px solid #5a6978;
+}
+
+.category-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+}
+
+/* Review Status Colors */
+.review-status-positive {
+    color: #66c0f4;
+}
+
+.review-status-mixed {
+    color: #b9a074;
+}
+
+.review-status-negative {
+    color: #a34c25;
+}
+
+.review-status-none {
+    color: #8f98a0;
+}
+
+/* Metacritic Score */
+.metacritic-score {
+    font-size: 14px;
 }
