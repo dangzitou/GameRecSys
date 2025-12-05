@@ -25,6 +25,7 @@ GameRecSys是一个游戏推荐系统（原为电影推荐系统），名字Game
    mysql -u root -p gamerecsys < src/main/resources/db_scripts/migrate_data.sql
    ```
    *(输入命令后回车，然后输入你的 MySQL 密码)*
+   
    如果是在vscode终端（默认使用Powershell），执行：
    ```bash
    cmd /c "mysql -u root -p gamerecsys < src/main/resources/db_scripts/migrate_data.sql"
