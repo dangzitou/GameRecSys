@@ -71,6 +71,39 @@ GameRecSys是一个游戏推荐系统（原为电影推荐系统），名字Game
 ## 项目数据
 项目数据为游戏数据集（`games_filtered.csv`），来源于Steam等平台的游戏数据。
 
+## 项目进度与计划
+
+### 已实现功能 (Implemented)
+- [x] **前端页面开发**: 完成了首页、游戏详情页、用户页等基础页面 (Webroot)。
+- [x] **基础推荐服务**:
+  - 游戏详情接口 (`/getgame`)
+  - 用户详情接口 (`/getuser`)
+  - 相似游戏推荐 (`/getsimilargame`)
+  - 猜你喜欢 (`/getrecommendation`)
+  - 个性化推荐 (`/getrecforyou`)
+- [x] **搜索与交互**:
+  - 游戏搜索接口 (`/search`)
+  - 用户评分接口 (`/rating`)
+  - 用户认证接口 (`/auth/*`)
+- [x] **基础设施**:
+  - 数据库集成 (MySQL + MyBatis)
+  - 嵌入式 Jetty 服务器
+  - 基础数据加载 (DataManager)
+
+### 待实现功能 (Todo List)
+- [ ] **实时推荐更新 (Real-time Updates)**
+  - [ ] 在 `RatingController` 中添加逻辑，用户评分后实时更新内存中的用户画像。
+  - [ ] 实现基于内存的简易协同过滤或规则调整，即时反馈用户行为。
+- [ ] **离线模型训练管道 (Offline Training Pipeline)**
+  - [ ] 编写 Python/Spark 脚本，定期从 MySQL 导出评分数据。
+  - [ ] 实现模型训练脚本 (Word2Vec, NeuralCF 等)，生成新的 Embedding 向量。
+- [ ] **模型服务化 (Model Serving)**
+  - [ ] 实现 Embedding 数据的热加载机制 (无需重启服务器)。
+  - [ ] (可选) 搭建 TensorFlow Serving 服务，通过 gRPC 调用复杂模型。
+- [ ] **系统运维与监控**
+  - [ ] 添加管理接口，用于手动触发数据重载或模型更新。
+  - [ ] 完善日志记录，确保用户行为数据可追溯。
+
 ---
 
 本项目改造自[SparrowRecSys](https://github.com/wzhe06/SparrowRecSys)。
