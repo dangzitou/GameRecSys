@@ -20,12 +20,15 @@ GameRecSys是一个游戏推荐系统（原为电影推荐系统），名字Game
 3. 导入初始数据：
    由于数据文件 `migrate_data.sql` 较大，建议直接在终端（命令行）运行以下命令导入，而不是复制粘贴内容。
    
-   在项目根目录下执行：
+   在项目根目录下cmd执行：
    ```bash
    mysql -u root -p gamerecsys < src/main/resources/db_scripts/migrate_data.sql
    ```
    *(输入命令后回车，然后输入你的 MySQL 密码)*
-
+   如果是在vscode终端（默认使用Powershell），执行：
+   ```bash
+   cmd /c "mysql -u root -p gamerecsys < src/main/resources/db_scripts/migrate_data.sql"
+   ```
    或者在 MySQL 交互式命令行中执行：
    ```sql
    use gamerecsys;
