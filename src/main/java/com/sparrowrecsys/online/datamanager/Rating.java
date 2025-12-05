@@ -1,20 +1,29 @@
 package com.sparrowrecsys.online.datamanager;
 
 /**
- * Rating Class, contains attributes loaded from movielens ratings.csv
+ * Rating Class, contains attributes loaded from ratings.csv
  */
 public class Rating {
-    int movieId;
+    int gameId;
     int userId;
     float score;
     long timestamp;
 
+    public int getGameId() {
+        return gameId;
+    }
+
+    public void setGameId(int gameId) {
+        this.gameId = gameId;
+    }
+
+    // Keep movieId getter/setter for backward compatibility
     public int getMovieId() {
-        return movieId;
+        return gameId;
     }
 
     public void setMovieId(int movieId) {
-        this.movieId = movieId;
+        this.gameId = movieId;
     }
 
     public int getUserId() {

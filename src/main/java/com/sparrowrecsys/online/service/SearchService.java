@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * SearchService, return movies matching a query
+ * SearchService, return games matching a query
  */
 public class SearchService extends HttpServlet {
     private static final Logger logger = LoggerFactory.getLogger(SearchService.class);

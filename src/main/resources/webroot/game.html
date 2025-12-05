@@ -34,29 +34,107 @@
                 </span>
             </div>
             <div class="base-header-search-container">
-                <form class="form-inline ng-pristine ng-valid ng-touched" novalidate="" role="form">
-                    <div class="input-group input-group-sm base-header-search-box">
+                <form class="form-inline ng-pristine ng-valid ng-touched" novalidate="" role="form" onsubmit="event.preventDefault(); searchGame();">
+                    <div class="input-group base-header-search-box">
                <span class="twitter-typeahead" style="position: relative; display: inline-block;">
-                   <input class="form-control input-sm no-glow tt-input ng-pristine ng-valid ng-touched"
+                   <input class="form-control no-glow tt-input ng-pristine ng-valid ng-touched"
                           id="omnisearch-typeahead" name="currentVal" type="text" spellcheck="false" dir="auto"
                           aria-owns="omnisearch-typeahead_listbox" role="combobox"
                           aria-readonly="true" aria-autocomplete="list"
+                          placeholder="Search games..."
                           style="position: relative; vertical-align: top; background-color: transparent;"/>
                 </span>
                         <span class="input-group-btn">
-                            <button class="btn btn-default btn-sm no-glow">
+                            <button class="btn btn-default no-glow" onclick="searchGame()">
                                 <i class="fa fa-search"></i>
                             </button>
                         </span>
                     </div>
                 </form>
             </div>
+            <!-- Auth Section -->
+            <div class="header-auth-container">
+                <!-- Guest Buttons -->
+                <div class="guest-auth-buttons" id="guestAuthButtons">
+                    <button class="header-auth-btn btn-login" onclick="openAuthModal('login')">登录</button>
+                    <button class="header-auth-btn" onclick="openAuthModal('register')">注册</button>
+                </div>
+                <!-- User Menu (shown when logged in) -->
+                <div class="user-menu-container" id="userMenuContainer">
+                    <div class="user-menu-trigger" onclick="toggleUserDropdown()">
+                        <div class="user-avatar" id="userAvatar">U</div>
+                        <span class="user-name" id="userName">用户</span>
+                        <span style="font-size: 10px;">▼</span>
+                    </div>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="./user.html" class="user-dropdown-item">个人中心</a>
+                        <div class="user-dropdown-divider"></div>
+                        <button class="user-dropdown-item" onclick="handleLogout()">退出登录</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </header>
+
+    <!-- Auth Modal -->
+    <div class="auth-modal-overlay" id="authModalOverlay" onclick="closeAuthModalOnOverlay(event)">
+        <div class="auth-modal">
+            <div class="auth-modal-header">
+                <h3 class="auth-modal-title" id="authModalTitle">登录</h3>
+                <button class="auth-modal-close" onclick="closeAuthModal()">&times;</button>
+            </div>
+            <div class="auth-modal-body">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" id="loginTab" onclick="switchAuthTab('login')">登录</button>
+                    <button class="auth-tab" id="registerTab" onclick="switchAuthTab('register')">注册</button>
+                </div>
+
+                <div class="auth-message" id="authMessage"></div>
+
+                <!-- Login Form -->
+                <form class="auth-form active" id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="auth-form-group">
+                        <label class="auth-form-label">用户名</label>
+                        <input type="text" class="auth-form-input" id="loginUsername" placeholder="请输入用户名" required>
+                    </div>
+                    <div class="auth-form-group">
+                        <label class="auth-form-label">密码</label>
+                        <input type="password" class="auth-form-input" id="loginPassword" placeholder="请输入密码" required>
+                    </div>
+                    <button type="submit" class="auth-submit-btn" id="loginSubmitBtn">登录</button>
+                </form>
+
+                <!-- Register Form -->
+                <form class="auth-form" id="registerForm" onsubmit="handleRegister(event)">
+                    <div class="auth-form-group">
+                        <label class="auth-form-label">用户名</label>
+                        <input type="text" class="auth-form-input" id="registerUsername" placeholder="请输入用户名" required>
+                    </div>
+                    <div class="auth-form-group">
+                        <label class="auth-form-label">邮箱</label>
+                        <input type="email" class="auth-form-input" id="registerEmail" placeholder="请输入邮箱（可选）">
+                    </div>
+                    <div class="auth-form-group">
+                        <label class="auth-form-label">昵称</label>
+                        <input type="text" class="auth-form-input" id="registerNickname" placeholder="请输入昵称（可选）">
+                    </div>
+                    <div class="auth-form-group">
+                        <label class="auth-form-label">密码</label>
+                        <input type="password" class="auth-form-input" id="registerPassword" placeholder="请输入密码（至少6位）" required minlength="6">
+                    </div>
+                    <div class="auth-form-group">
+                        <label class="auth-form-label">确认密码</label>
+                        <input type="password" class="auth-form-input" id="registerConfirmPassword" placeholder="请再次输入密码" required>
+                    </div>
+                    <button type="submit" class="auth-submit-btn" id="registerSubmitBtn">注册</button>
+                </form>
+            </div>
+        </div>
+    </div>
     <div class="base-compact-header-spacer"></div>
     <div class="ml4-container" style="min-height: 920px;">
         <div id="main-container">
-            <div class="movie-alt" id="movie-details-container">
+            <div class="game-alt" id="game-details-container">
             </div>
             <div class="frontpage" id="recPage">
 
@@ -83,8 +161,8 @@ var id = getQueryString("id",windowLocation);
 
 var baseUrl = windowLocation.protocol + "//" + windowLocation.host + "/"
 
-addMovieDetails("movie-details-container", id, baseUrl);
-addRelatedMovies("#recPage", "relatedMovies", id, baseUrl);
+addGameDetails("game-details-container", id, baseUrl);
+addRelatedGames("#recPage", "relatedGames", id, baseUrl);
 
 </script>
 </html>

@@ -1,8 +1,8 @@
 package com.sparrowrecsys.online.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sparrowrecsys.online.datamanager.Movie;
-import com.sparrowrecsys.online.recprocess.SimilarMovieProcess;
+import com.sparrowrecsys.online.datamanager.GameItem;
+import com.sparrowrecsys.online.recprocess.SimilarGameProcess;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -11,31 +11,32 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * SimilarMovieService, recommend similar movies given by a specific movie
+ * SimilarGameService, recommend similar games given by a specific game
  */
-public class SimilarMovieService extends HttpServlet {
+public class SimilarGameService extends HttpServlet {
     protected void doGet(HttpServletRequest request,
-                         HttpServletResponse response) throws IOException {
+            HttpServletResponse response) throws IOException {
         try {
             response.setContentType("application/json");
             response.setStatus(HttpServletResponse.SC_OK);
             response.setCharacterEncoding("UTF-8");
             response.setHeader("Access-Control-Allow-Origin", "*");
 
-            //movieId
-            String movieId = request.getParameter("movieId");
-            //number of returned movies
+            // gameId
+            String gameId = request.getParameter("gameId");
+            // number of returned games
             String size = request.getParameter("size");
-            //model of calculating similarity, e.g. embedding, graph-embedding
+            // model of calculating similarity, e.g. embedding, graph-embedding
             String model = request.getParameter("model");
 
-            //use SimilarMovieFlow to get similar movies
-            List<Movie> movies = SimilarMovieProcess.getRecList(Integer.parseInt(movieId), Integer.parseInt(size), model);
+            // use SimilarGameProcess to get similar games
+            List<GameItem> games = SimilarGameProcess.getRecList(Integer.parseInt(gameId), Integer.parseInt(size),
+                    model);
 
-            //convert movie list to json format and return
+            // convert game list to json format and return
             ObjectMapper mapper = new ObjectMapper();
-            String jsonMovies = mapper.writeValueAsString(movies);
-            response.getWriter().println(jsonMovies);
+            String jsonGames = mapper.writeValueAsString(games);
+            response.getWriter().println(jsonGames);
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -10,21 +10,22 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Movie Class, contains attributes loaded from movielens movies.csv and other advanced data like averageRating, emb, etc.
+ * GameItem Class, contains attributes loaded from games CSV and other advanced
+ * data like averageRating, emb, etc.
  */
-public class Movie {
-    int movieId;
+public class GameItem {
+    int gameId;
     String title;
     int releaseYear;
     String imdbId;
     String tmdbId;
     List<String> genres;
-    //how many user rate the movie
+    // how many user rate the game
     int ratingNumber;
-    //average rating score
+    // average rating score
     double averageRating;
 
-    // New fields for Game data
+    // Fields for Game data
     String description;
     String headerImage;
     String screenshots; // Comma separated URLs
@@ -36,30 +37,30 @@ public class Movie {
     String price;
     String supportedLanguages;
 
-    //embedding of the movie
+    // embedding of the game
     @JsonIgnore
     Embedding emb;
 
-    //all rating scores list
+    // all rating scores list
     @JsonIgnore
     List<Rating> ratings;
 
     @JsonIgnore
-    Map<String, String> movieFeatures;
+    Map<String, String> gameFeatures;
 
     final int TOP_RATING_SIZE = 10;
 
     @JsonSerialize(using = RatingListSerializer.class)
     List<Rating> topRatings;
 
-    public Movie() {
+    public GameItem() {
         ratingNumber = 0;
         averageRating = 0;
         this.genres = new ArrayList<>();
         this.ratings = new ArrayList<>();
         this.topRatings = new LinkedList<>();
         this.emb = null;
-        this.movieFeatures = null;
+        this.gameFeatures = null;
         this.description = "";
         this.headerImage = "";
         this.screenshots = "";
@@ -67,12 +68,21 @@ public class Movie {
         this.positiveReviews = 0;
     }
 
+    public int getGameId() {
+        return gameId;
+    }
+
+    public void setGameId(int gameId) {
+        this.gameId = gameId;
+    }
+
+    // Keep movieId getter/setter for JSON compatibility
     public int getMovieId() {
-        return movieId;
+        return gameId;
     }
 
     public void setMovieId(int movieId) {
-        this.movieId = movieId;
+        this.gameId = movieId;
     }
 
     public String getTitle() {
@@ -95,7 +105,7 @@ public class Movie {
         return genres;
     }
 
-    public void addGenre(String genre){
+    public void addGenre(String genre) {
         this.genres.add(genre);
     }
 
@@ -108,22 +118,22 @@ public class Movie {
     }
 
     public void addRating(Rating rating) {
-        averageRating = (averageRating * ratingNumber + rating.getScore()) / (ratingNumber+1);
+        averageRating = (averageRating * ratingNumber + rating.getScore()) / (ratingNumber + 1);
         ratingNumber++;
         this.ratings.add(rating);
         addTopRating(rating);
     }
 
-    public void addTopRating(Rating rating){
-        if (this.topRatings.isEmpty()){
+    public void addTopRating(Rating rating) {
+        if (this.topRatings.isEmpty()) {
             this.topRatings.add(rating);
-        }else{
+        } else {
             int index = 0;
-            for (Rating topRating : this.topRatings){
-                if (topRating.getScore() >= rating.getScore()){
+            for (Rating topRating : this.topRatings) {
+                if (topRating.getScore() >= rating.getScore()) {
                     break;
                 }
-                index ++;
+                index++;
             }
             topRatings.add(index, rating);
             if (topRatings.size() > TOP_RATING_SIZE) {
@@ -164,12 +174,12 @@ public class Movie {
         this.emb = emb;
     }
 
-    public Map<String, String> getMovieFeatures() {
-        return movieFeatures;
+    public Map<String, String> getGameFeatures() {
+        return gameFeatures;
     }
 
-    public void setMovieFeatures(Map<String, String> movieFeatures) {
-        this.movieFeatures = movieFeatures;
+    public void setGameFeatures(Map<String, String> gameFeatures) {
+        this.gameFeatures = gameFeatures;
     }
 
     public String getDescription() {

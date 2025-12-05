@@ -4,7 +4,7 @@ import com.sparrowrecsys.online.controller.AuthController;
 import com.sparrowrecsys.online.controller.GameDetailController;
 import com.sparrowrecsys.online.controller.RatingController;
 import com.sparrowrecsys.online.datamanager.DataManager;
-import com.sparrowrecsys.online.datamanager.Movie;
+import com.sparrowrecsys.online.datamanager.GameItem;
 import com.sparrowrecsys.online.service.*;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.DefaultServlet;
@@ -85,8 +85,7 @@ public class RecSysServer {
                 "", "", "", "", "i2vEmb", "uEmb");
 
         // Verify data loaded (Legacy check)
-        List<com.sparrowrecsys.online.datamanager.Movie> check = DataManager.getInstance().getMovies(10,
-                "positiveReviews");
+        List<GameItem> check = DataManager.getInstance().getGames(10, "positiveReviews");
         if (check == null || check.isEmpty()) {
             System.err.println("CRITICAL ERROR: No games loaded! Please check games_filtered.csv path and format.");
         } else {
@@ -102,9 +101,9 @@ public class RecSysServer {
 
         // bind services with different servlets
         context.addServlet(DefaultServlet.class, "/");
-        context.addServlet(new ServletHolder(new GameDetailController()), "/getmovie");
+        context.addServlet(new ServletHolder(new GameDetailController()), "/getgame");
         context.addServlet(new ServletHolder(new UserService()), "/getuser");
-        context.addServlet(new ServletHolder(new SimilarMovieService()), "/getsimilarmovie");
+        context.addServlet(new ServletHolder(new SimilarGameService()), "/getsimilargame");
         context.addServlet(new ServletHolder(new RecommendationService()), "/getrecommendation");
         context.addServlet(new ServletHolder(new RecForYouService()), "/getrecforyou");
         context.addServlet(new ServletHolder(new SearchService()), "/search");

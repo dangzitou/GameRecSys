@@ -1,28 +1,28 @@
 
-function appendMovie2Row(rowId, movie, baseUrl) {
+function appendGame2Row(rowId, game, baseUrl) {
 
-    // Normalize data between old Movie model and new Game model
-    var id = movie.movieId || movie.appId;
-    var title = movie.title || movie.name;
-    var imageUrl = movie.headerImage || ('./posters/' + id + '.jpg');
-    var ratingValue = movie.positiveReviews || movie.positive || 0;
+    // Normalize data between GameItem model and Game model
+    var id = game.gameId || game.appId;
+    var title = game.title || game.name;
+    var imageUrl = game.headerImage || ('./posters/' + id + '.jpg');
+    var ratingValue = game.positiveReviews || game.positive || 0;
 
-    var year = movie.releaseYear || "";
-    if (!year && movie.releaseDate) {
+    var year = game.releaseYear || "";
+    if (!year && game.releaseDate) {
         // Try to extract year from "MMM dd, YYYY" or similar formats
-        var parts = movie.releaseDate.split(',');
+        var parts = game.releaseDate.split(',');
         if (parts.length > 1) {
             year = parts[parts.length - 1].trim();
         } else {
-            year = movie.releaseDate;
+            year = game.releaseDate;
         }
     }
 
     var genresList = [];
-    if (Array.isArray(movie.genres)) {
-        genresList = movie.genres;
-    } else if (typeof movie.genres === 'string') {
-        genresList = movie.genres.split(',').map(function (item) { return item.trim(); });
+    if (Array.isArray(game.genres)) {
+        genresList = game.genres;
+    } else if (typeof game.genres === 'string') {
+        genresList = game.genres.split(',').map(function (item) { return item.trim(); });
     }
 
     var genresStr = "";
@@ -142,8 +142,8 @@ function addGenreRow(pageId, rowName, rowId, size, baseUrl) {
     $.getJSON(baseUrl + "getrecommendation?genre=" + rowName + "&size=" + size + "&sortby=positiveReviews", function (result) {
         // Handle new response format {games: [...], totalPages: ...}
         var games = result.games || result; // Fallback if backend not updated yet
-        $.each(games, function (i, movie) {
-            appendMovie2Row(rowId, movie, baseUrl);
+        $.each(games, function (i, game) {
+            appendGame2Row(rowId, game, baseUrl);
         });
     });
 };
@@ -174,8 +174,8 @@ function addGenrePage(pageId, rowName, rowId, page, size, baseUrl) {
         var totalPages = result.totalPages;
         var currentPage = result.currentPage;
 
-        $.each(games, function (i, movie) {
-            appendMovie2Row(rowId, movie, baseUrl);
+        $.each(games, function (i, game) {
+            appendGame2Row(rowId, game, baseUrl);
         });
 
         // Update pagination controls
@@ -206,32 +206,39 @@ function changePage(genre, newPage) {
     window.location.href = "collection.html?type=genre&value=" + genre + "&page=" + newPage;
 }
 
+function addRelatedGames(pageId, rowId, gameId, baseUrl) {
+    addRowFrameWithoutLink(pageId, "Similar Games", rowId, baseUrl);
+    $.getJSON(baseUrl + "getsimilargame?gameId=" + gameId + "&size=16&model=emb", function (result) {
+        $.each(result, function (i, game) {
+            appendGame2Row(rowId, game, baseUrl);
+        });
+    });
+}
 
+function addGameDetails(containerId, gameId, baseUrl) {
 
-function addMovieDetails(containerId, movieId, baseUrl) {
-
-    $.getJSON(baseUrl + "getmovie?id=" + movieId, function (movieObject) {
-        if (!movieObject) return;
+    $.getJSON(baseUrl + "getgame?id=" + gameId, function (gameObject) {
+        if (!gameObject) return;
 
         // Normalize Data
-        var title = movieObject.title || movieObject.name;
-        var id = movieObject.movieId || movieObject.appId;
-        var description = movieObject.description || movieObject.aboutTheGame;
-        var developer = movieObject.developer || movieObject.developers;
-        var publisher = movieObject.publisher || movieObject.publishers;
-        var positiveReviews = movieObject.positiveReviews || movieObject.positive || 0;
-        var negativeReviews = movieObject.negativeReviews || movieObject.negative || 0;
-        var headerImage = movieObject.headerImage || ('./posters/' + id + '.jpg');
-        var releaseDate = movieObject.releaseDate || 'N/A';
-        var price = movieObject.price;
+        var title = gameObject.title || gameObject.name;
+        var id = gameObject.gameId || gameObject.appId;
+        var description = gameObject.description || gameObject.aboutTheGame;
+        var developer = gameObject.developer || gameObject.developers;
+        var publisher = gameObject.publisher || gameObject.publishers;
+        var positiveReviews = gameObject.positiveReviews || gameObject.positive || 0;
+        var negativeReviews = gameObject.negativeReviews || gameObject.negative || 0;
+        var headerImage = gameObject.headerImage || ('./posters/' + id + '.jpg');
+        var releaseDate = gameObject.releaseDate || 'N/A';
+        var price = gameObject.price;
 
         // New fields
-        var averagePlaytime = movieObject.averagePlaytimeForever || 0;
-        var medianPlaytime = movieObject.medianPlaytimeForever || 0;
-        var achievements = movieObject.achievements || 0;
-        var recommendations = movieObject.recommendations || 0;
-        var metacriticScore = movieObject.metacriticScore || 0;
-        var categories = movieObject.categories || '';
+        var averagePlaytime = gameObject.averagePlaytimeForever || 0;
+        var medianPlaytime = gameObject.medianPlaytimeForever || 0;
+        var achievements = gameObject.achievements || 0;
+        var recommendations = gameObject.recommendations || 0;
+        var metacriticScore = gameObject.metacriticScore || 0;
+        var categories = gameObject.categories || '';
 
         // Calculate positive rate
         var totalReviews = positiveReviews + negativeReviews;
@@ -255,10 +262,10 @@ function addMovieDetails(containerId, movieId, baseUrl) {
 
         // Genres Processing
         var genresList = [];
-        if (Array.isArray(movieObject.genres)) {
-            genresList = movieObject.genres;
-        } else if (typeof movieObject.genres === 'string') {
-            genresList = movieObject.genres.split(',').map(function (item) { return item.trim(); });
+        if (Array.isArray(gameObject.genres)) {
+            genresList = gameObject.genres;
+        } else if (typeof gameObject.genres === 'string') {
+            genresList = gameObject.genres.split(',').map(function (item) { return item.trim(); });
         }
 
         var genresHtml = "";
@@ -280,7 +287,7 @@ function addMovieDetails(containerId, movieId, baseUrl) {
         var mediaItems = [];
 
         // Add videos
-        var videoSource = movieObject.productionVideos || movieObject.movies;
+        var videoSource = gameObject.productionVideos || gameObject.movies;
         if (videoSource) {
             var vids = videoSource.split(",");
             $.each(vids, function (i, vid) {
@@ -291,8 +298,8 @@ function addMovieDetails(containerId, movieId, baseUrl) {
         }
 
         // Add screenshots
-        if (movieObject.screenshots) {
-            var shots = movieObject.screenshots.split(",");
+        if (gameObject.screenshots) {
+            var shots = gameObject.screenshots.split(",");
             $.each(shots, function (i, shot) {
                 if (shot.trim() !== "") {
                     mediaItems.push({ type: 'image', src: shot.trim() });
@@ -325,7 +332,7 @@ function addMovieDetails(containerId, movieId, baseUrl) {
         var priceDisplay = price ? "$" + price : "Free";
         if (price === 0 || price === "0") priceDisplay = "Free to Play";
 
-        var languages = movieObject.supportedLanguages || 'N/A';
+        var languages = gameObject.supportedLanguages || 'N/A';
         if (languages !== 'N/A' && languages.startsWith('[') && languages.endsWith(']')) {
             var content = languages.substring(1, languages.length - 1);
             if (content.trim() === "") {
@@ -338,7 +345,7 @@ function addMovieDetails(containerId, movieId, baseUrl) {
             }
         }
 
-        var movieDetails = `
+        var gameDetails = `
             <div class="game-details-container" style="color: #c6d4df; background-color: #1b2838; padding: 20px; max-width: 1200px; margin: 0 auto;">
                 <div class="row">
                     <div class="col-md-12">
@@ -470,7 +477,7 @@ function addMovieDetails(containerId, movieId, baseUrl) {
                 </div>
             </div>
         `;
-        $("#" + containerId).prepend(movieDetails);
+        $("#" + containerId).prepend(gameDetails);
 
         // 初始化评分功能
         initRatingSystem(id);
