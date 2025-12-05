@@ -59,11 +59,21 @@ public class GameService {
         }
     }
 
-    public List<Game> getGamesByGenre(String genre, int limit) {
+    public List<Game> getGamesByGenre(String genre, int limit, String sortBy) {
         try (SqlSession session = sqlSessionFactory.openSession()) {
             GameMapper mapper = session.getMapper(GameMapper.class);
-            List<Game> games = mapper.selectGamesByGenre(genre, limit);
-            logger.info("getGamesByGenre: genre='{}', limit={}, resultSize={}", genre, limit, games.size());
+            String dbSortBy = null;
+            if ("rating".equals(sortBy)) {
+                dbSortBy = "Metacritic_score";
+            } else if ("releaseYear".equals(sortBy)) {
+                dbSortBy = "Release_date";
+            } else if ("positiveReviews".equals(sortBy)) {
+                dbSortBy = "Positive";
+            }
+
+            List<Game> games = mapper.selectGamesByGenre(genre, limit, dbSortBy);
+            logger.info("getGamesByGenre: genre='{}', limit={}, sortBy='{}' (mapped to '{}'), resultSize={}", genre,
+                    limit, sortBy, dbSortBy, games.size());
             return games;
         }
     }

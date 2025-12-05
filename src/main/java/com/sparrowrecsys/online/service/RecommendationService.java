@@ -1,8 +1,7 @@
 package com.sparrowrecsys.online.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sparrowrecsys.online.datamanager.DataManager;
-import com.sparrowrecsys.online.datamanager.Movie;
+import com.sparrowrecsys.online.model.Game;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -12,12 +11,13 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * RecommendationService, provide recommendation service based on different input
+ * RecommendationService, provide recommendation service based on different
+ * input
  */
 
 public class RecommendationService extends HttpServlet {
     protected void doGet(HttpServletRequest request,
-                         HttpServletResponse response) throws ServletException,
+            HttpServletResponse response) throws ServletException,
             IOException {
         try {
             response.setContentType("application/json");
@@ -25,28 +25,28 @@ public class RecommendationService extends HttpServlet {
             response.setCharacterEncoding("UTF-8");
             response.setHeader("Access-Control-Allow-Origin", "*");
 
-            //genre - movie category
+            // genre - movie category
             String genre = request.getParameter("genre");
-            //number of returned movies
+            // number of returned movies
             String size = request.getParameter("size");
-            //ranking algorithm
+            // ranking algorithm
             String sortby = request.getParameter("sortby");
 
             System.out.println("RecommendationService: genre=" + genre + ", size=" + size + ", sortby=" + sortby);
 
-            //a simple method, just fetch all the movie in the genre
-            List<Movie> movies = DataManager.getInstance().getMoviesByGenre(genre, Integer.parseInt(size),sortby);
+            // fetch games from DB via GameService
+            List<Game> games = GameService.getInstance().getGamesByGenre(genre, Integer.parseInt(size), sortby);
 
-            if (movies == null) {
-                 System.out.println("RecommendationService: No movies found for genre " + genre);
+            if (games == null || games.isEmpty()) {
+                System.out.println("RecommendationService: No games found for genre " + genre);
             } else {
-                 System.out.println("RecommendationService: Found " + movies.size() + " movies.");
+                System.out.println("RecommendationService: Found " + games.size() + " games.");
             }
 
-            //convert movie list to json format and return
+            // convert game list to json format and return
             ObjectMapper mapper = new ObjectMapper();
-            String jsonMovies = mapper.writeValueAsString(movies);
-            response.getWriter().println(jsonMovies);
+            String jsonGames = mapper.writeValueAsString(games);
+            response.getWriter().println(jsonGames);
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -11,5 +11,6 @@ public interface GameMapper {
 
     List<Game> searchGames(@Param("query") String query, @Param("limit") int limit);
 
-    List<Game> selectGamesByGenre(@Param("genre") String genre, @Param("limit") int limit);
+    List<Game> selectGamesByGenre(@Param("genre") String genre, @Param("limit") int limit,
+            @Param("sortBy") String sortBy);
 }

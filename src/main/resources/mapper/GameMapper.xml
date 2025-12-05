@@ -64,6 +64,9 @@
   <select id="selectGamesByGenre" resultMap="GameResultMap">
     SELECT * FROM game_data 
     WHERE Genres LIKE CONCAT('%', #{genre}, '%') 
+    <if test="sortBy != null">
+      ORDER BY ${sortBy} DESC
+    </if>
     LIMIT #{limit}
   </select>
 

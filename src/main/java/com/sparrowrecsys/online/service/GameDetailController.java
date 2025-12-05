@@ -12,7 +12,7 @@ import java.io.IOException;
  * MovieService, return information of a specific movie
  */
 
-public class MovieService extends HttpServlet {
+public class GameDetailController extends HttpServlet {
     protected void doGet(HttpServletRequest request,
             HttpServletResponse response) throws IOException {
         try {
