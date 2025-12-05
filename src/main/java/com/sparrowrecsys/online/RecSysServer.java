@@ -2,6 +2,7 @@ package com.sparrowrecsys.online;
 
 import com.sparrowrecsys.online.controller.AuthController;
 import com.sparrowrecsys.online.controller.GameDetailController;
+import com.sparrowrecsys.online.controller.RatingController;
 import com.sparrowrecsys.online.datamanager.DataManager;
 import com.sparrowrecsys.online.datamanager.Movie;
 import com.sparrowrecsys.online.service.*;
@@ -108,6 +109,7 @@ public class RecSysServer {
         context.addServlet(new ServletHolder(new RecForYouService()), "/getrecforyou");
         context.addServlet(new ServletHolder(new SearchService()), "/search");
         context.addServlet(new ServletHolder(new AuthController()), "/auth/*");
+        context.addServlet(new ServletHolder(new RatingController()), "/rating");
 
         // set url handler
         server.setHandler(context);

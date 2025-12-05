@@ -23,5 +23,6 @@
   <mappers>
     <mapper resource="mapper/GameMapper.xml"/>
     <mapper resource="mapper/UserAccountMapper.xml"/>
+    <mapper resource="mapper/UserGameRatingMapper.xml"/>
   </mappers>
 </configuration>

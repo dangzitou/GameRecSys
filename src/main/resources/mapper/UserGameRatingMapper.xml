@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sparrowrecsys.online.mapper.UserGameRatingMapper">
+
+  <resultMap id="UserGameRatingResultMap" type="com.sparrowrecsys.online.model.UserGameRating">
+    <id property="id" column="id"/>
+    <result property="userId" column="user_id"/>
+    <result property="gameId" column="game_id"/>
+    <result property="rating" column="rating"/>
+    <result property="timestamp" column="timestamp"/>
+    <result property="createdAt" column="created_at"/>
+  </resultMap>
+
+  <insert id="insert" parameterType="com.sparrowrecsys.online.model.UserGameRating" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO user_game_rating (user_id, game_id, rating, timestamp)
+    VALUES (#{userId}, #{gameId}, #{rating}, #{timestamp})
+  </insert>
+
+  <update id="update" parameterType="com.sparrowrecsys.online.model.UserGameRating">
+    UPDATE user_game_rating
+    SET rating = #{rating}, timestamp = #{timestamp}
+    WHERE user_id = #{userId} AND game_id = #{gameId}
+  </update>
+
+  <insert id="upsert" parameterType="com.sparrowrecsys.online.model.UserGameRating">
+    INSERT INTO user_game_rating (user_id, game_id, rating, timestamp)
+    VALUES (#{userId}, #{gameId}, #{rating}, #{timestamp})
+    ON DUPLICATE KEY UPDATE rating = #{rating}, timestamp = #{timestamp}
+  </insert>
+
+  <select id="selectByUserAndGame" resultMap="UserGameRatingResultMap">
+    SELECT * FROM user_game_rating 
+    WHERE user_id = #{userId} AND game_id = #{gameId}
+  </select>
+
+  <select id="selectByUserId" resultMap="UserGameRatingResultMap">
+    SELECT * FROM user_game_rating WHERE user_id = #{userId} ORDER BY timestamp DESC
+  </select>
+
+  <select id="selectByGameId" resultMap="UserGameRatingResultMap">
+    SELECT * FROM user_game_rating WHERE game_id = #{gameId} ORDER BY timestamp DESC
+  </select>
+
+  <delete id="deleteByUserAndGame">
+    DELETE FROM user_game_rating WHERE user_id = #{userId} AND game_id = #{gameId}
+  </delete>
+
+  <select id="getAverageRatingByGameId" resultType="java.lang.Double">
+    SELECT AVG(rating) FROM user_game_rating WHERE game_id = #{gameId}
+  </select>
+
+  <select id="getRatingCountByGameId" resultType="java.lang.Integer">
+    SELECT COUNT(*) FROM user_game_rating WHERE game_id = #{gameId}
+  </select>
+
+  <select id="selectAll" resultMap="UserGameRatingResultMap">
+    SELECT * FROM user_game_rating ORDER BY timestamp ASC
+  </select>
+
+  <select id="selectWithPagination" resultMap="UserGameRatingResultMap">
+    SELECT * FROM user_game_rating ORDER BY timestamp ASC LIMIT #{limit} OFFSET #{offset}
+  </select>
+
+  <select id="countAll" resultType="int">
+    SELECT COUNT(*) FROM user_game_rating
+  </select>
+
+</mapper>
+

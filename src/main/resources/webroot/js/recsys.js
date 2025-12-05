@@ -446,12 +446,34 @@ function addMovieDetails(containerId, movieId, baseUrl) {
                                     ${categoriesHtml}
                                 </div>
                             </div>` : ''}
+
+                            <!-- 用户评分区域 -->
+                            <div class="user-rating-section" id="user-rating-section" data-game-id="${id}">
+                                <div class="info-label">Rate This Game:</div>
+                                <div class="star-rating-container">
+                                    <div class="star-rating" id="star-rating">
+                                        <span class="star" data-rating="1">★</span>
+                                        <span class="star" data-rating="2">★</span>
+                                        <span class="star" data-rating="3">★</span>
+                                        <span class="star" data-rating="4">★</span>
+                                        <span class="star" data-rating="5">★</span>
+                                    </div>
+                                    <span class="rating-text" id="rating-text">Click to rate</span>
+                                </div>
+                                <div class="rating-stats" id="rating-stats">
+                                    <span class="avg-rating">Avg: <span id="avg-rating-value">--</span></span>
+                                    <span class="rating-count">(<span id="rating-count-value">0</span> ratings)</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         `;
         $("#" + containerId).prepend(movieDetails);
+
+        // 初始化评分功能
+        initRatingSystem(id);
     });
 };
 
@@ -734,4 +756,178 @@ function authFetch(url, options) {
     }
 
     return $.ajax(url, options);
+}
+
+// ========== 用户评分功能 ==========
+
+/**
+ * 初始化评分系统
+ */
+function initRatingSystem(gameId) {
+    // 获取当前评分数据
+    loadRatingData(gameId);
+
+    // 绑定星星点击事件
+    $('#star-rating .star').on('click', function () {
+        var rating = $(this).data('rating');
+        submitRating(gameId, rating);
+    });
+
+    // 绑定星星悬浮效果
+    $('#star-rating .star').on('mouseenter', function () {
+        var rating = $(this).data('rating');
+        highlightStars(rating);
+        $('#rating-text').text(getRatingText(rating));
+    });
+
+    $('#star-rating').on('mouseleave', function () {
+        var currentRating = $('#star-rating').data('user-rating') || 0;
+        highlightStars(currentRating);
+        if (currentRating > 0) {
+            $('#rating-text').text('Your rating: ' + currentRating);
+        } else {
+            $('#rating-text').text('Click to rate');
+        }
+    });
+}
+
+/**
+ * 加载评分数据
+ */
+function loadRatingData(gameId) {
+    var token = getAuthToken();
+    var headers = {};
+    if (token) {
+        headers['Authorization'] = 'Bearer ' + token;
+    }
+
+    $.ajax({
+        url: '/rating?gameId=' + gameId,
+        method: 'GET',
+        headers: headers,
+        success: function (response) {
+            if (response.success) {
+                updateRatingDisplay(response);
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('Failed to load rating data:', error);
+        }
+    });
+}
+
+/**
+ * 更新评分显示
+ */
+function updateRatingDisplay(data) {
+    // 更新平均评分和评分数量
+    var avgRating = data.averageRating || 0;
+    var ratingCount = data.ratingCount || 0;
+
+    $('#avg-rating-value').text(avgRating.toFixed(1));
+    $('#rating-count-value').text(ratingCount);
+
+    // 更新用户评分
+    if (data.userRating) {
+        var userRating = data.userRating;
+        $('#star-rating').data('user-rating', userRating);
+        highlightStars(userRating);
+        $('#rating-text').text('Your rating: ' + userRating);
+    }
+}
+
+/**
+ * 提交评分
+ */
+function submitRating(gameId, rating) {
+    var token = getAuthToken();
+
+    if (!token) {
+        alert('请先登录后再评分');
+        openAuthModal('login');
+        return;
+    }
+
+    $.ajax({
+        url: '/rating',
+        method: 'POST',
+        contentType: 'application/json',
+        headers: {
+            'Authorization': 'Bearer ' + token
+        },
+        data: JSON.stringify({
+            gameId: gameId,
+            rating: rating
+        }),
+        success: function (response) {
+            if (response.success) {
+                $('#star-rating').data('user-rating', rating);
+                highlightStars(rating);
+                $('#rating-text').text('Your rating: ' + rating);
+                $('#avg-rating-value').text(response.averageRating.toFixed(1));
+                $('#rating-count-value').text(response.ratingCount);
+
+                // 显示成功提示
+                showRatingToast('Rating submitted successfully!');
+            } else {
+                alert(response.message || 'Rating failed');
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('Rating failed:', error);
+            if (xhr.status === 401) {
+                alert('Please login first');
+                openAuthModal('login');
+            } else {
+                alert('Rating failed, please try again');
+            }
+        }
+    });
+}
+
+/**
+ * 高亮星星
+ */
+function highlightStars(rating) {
+    $('#star-rating .star').each(function () {
+        var starRating = $(this).data('rating');
+        if (starRating <= rating) {
+            $(this).addClass('active');
+        } else {
+            $(this).removeClass('active');
+        }
+    });
+}
+
+/**
+ * 获取评分文本
+ */
+function getRatingText(rating) {
+    var texts = {
+        1: 'Poor',
+        2: 'Fair',
+        3: 'Good',
+        4: 'Very Good',
+        5: 'Excellent'
+    };
+    return texts[rating] || '';
+}
+
+/**
+ * 显示评分提示
+ */
+function showRatingToast(message) {
+    var toast = $('<div class="rating-toast">' + message + '</div>');
+    $('body').append(toast);
+
+    setTimeout(function () {
+        toast.addClass('show');
+    }, 10);
+
+    setTimeout(function () {
+        toast.removeClass('show');
+        setTimeout(function () {
+            toast.remove();
+        }, 300);
+    }, 2000);
 }
