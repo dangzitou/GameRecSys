@@ -34,17 +34,18 @@
                 </span>
             </div>
             <div class="base-header-search-container">
-                <form class="form-inline ng-pristine ng-valid ng-touched" novalidate="" role="form">
-                    <div class="input-group input-group-sm base-header-search-box">
+                <form class="form-inline ng-pristine ng-valid ng-touched" novalidate="" role="form" onsubmit="event.preventDefault(); searchGame();">
+                    <div class="input-group base-header-search-box">
                <span class="twitter-typeahead" style="position: relative; display: inline-block;">
-                   <input class="form-control input-sm no-glow tt-input ng-pristine ng-valid ng-touched"
+                   <input class="form-control no-glow tt-input ng-pristine ng-valid ng-touched"
                           id="omnisearch-typeahead" name="currentVal" type="text" spellcheck="false" dir="auto"
                           aria-owns="omnisearch-typeahead_listbox" role="combobox"
                           aria-readonly="true" aria-autocomplete="list"
+                          placeholder="Search games..."
                           style="position: relative; vertical-align: top; background-color: transparent;"/>
                 </span>
                         <span class="input-group-btn">
-                            <button class="btn btn-default btn-sm no-glow">
+                            <button class="btn btn-default no-glow" onclick="searchGame()">
                                 <i class="fa fa-search"></i>
                             </button>
                         </span>
@@ -83,6 +84,16 @@ var value = getQueryString("value",windowLocation);
 var baseUrl = windowLocation.protocol + "//" + windowLocation.host + "/"
 if(type == "genre"){
     addGenreRow('#recPage', value, value.toLowerCase() + '-collection', 100, baseUrl);
+} else if (type == "search") {
+    // Implement search results display
+    var rowName = "Search Results: " + value;
+    var rowId = "search-collection";
+    addRowFrameWithoutLink('#recPage', rowName, rowId, baseUrl);
+    $.getJSON(baseUrl + "search?query=" + encodeURIComponent(value) + "&size=100", function(result){
+        $.each(result, function(i, movie){
+          appendMovie2Row(rowId, movie, baseUrl);
+        });
+    });
 }
 
 </script>

@@ -1,16 +1,34 @@
 
 function appendMovie2Row(rowId, movie, baseUrl) {
 
-    var genresStr = "";
-    if (movie.genres) {
-        $.each(movie.genres, function(i, genre){
-            genresStr += ('<div class="genre"><a href="'+baseUrl+'collection.html?type=genre&value='+genre+'"><b>'+genre+'</b></a></div>');
-        });
+    // Normalize data between old Movie model and new Game model
+    var id = movie.movieId || movie.appId;
+    var title = movie.title || movie.name;
+    var imageUrl = movie.headerImage || ('./posters/' + id + '.jpg');
+    var ratingValue = movie.positiveReviews || movie.positive || 0;
+    
+    var year = movie.releaseYear || "";
+    if (!year && movie.releaseDate) {
+        // Try to extract year from "MMM dd, YYYY" or similar formats
+        var parts = movie.releaseDate.split(',');
+        if (parts.length > 1) {
+            year = parts[parts.length - 1].trim();
+        } else {
+            year = movie.releaseDate;
+        }
     }
 
-    var imageUrl = movie.headerImage || ('./posters/' + movie.movieId + '.jpg');
-    var rating = movie.averageRating ? movie.averageRating.toPrecision(2) : "N/A";
-    var year = movie.releaseYear || "";
+    var genresList = [];
+    if (Array.isArray(movie.genres)) {
+        genresList = movie.genres;
+    } else if (typeof movie.genres === 'string') {
+        genresList = movie.genres.split(',').map(function(item) { return item.trim(); });
+    }
+
+    var genresStr = "";
+    $.each(genresList, function(i, genre){
+        genresStr += ('<div class="genre"><a href="'+baseUrl+'collection.html?type=genre&value='+genre+'"><b>'+genre+'</b></a></div>');
+    });
 
     var divstr = '<div class="movie-row-item" style="margin-right:5px">\
                     <movie-card-smart>\
@@ -18,7 +36,7 @@ function appendMovie2Row(rowId, movie, baseUrl) {
                       <div class="movie-card-md1">\
                        <div class="card">\
                         <link-or-emit>\
-                         <a uisref="base.movie" href="./movie.html?movieId='+movie.movieId+'">\
+                         <a uisref="base.movie" href="./movie.html?movieId='+id+'">\
                          <span>\
                            <div class="poster">\
                             <img src="' + imageUrl + '" style="width:100%; height:100%; object-fit: cover;" />\
@@ -29,8 +47,8 @@ function appendMovie2Row(rowId, movie, baseUrl) {
                         <div class="overlay">\
                          <div class="above-fold">\
                           <link-or-emit>\
-                           <a uisref="base.movie" href="./movie.html?movieId='+movie.movieId+'">\
-                           <span><p class="title">' + movie.title + '</p></span></a>\
+                           <a uisref="base.movie" href="./movie.html?movieId='+id+'">\
+                           <span><p class="title">' + title + '</p></span></a>\
                           </link-or-emit>\
                           <div class="rating-indicator">\
                            <ml4-rating-or-prediction>\
@@ -40,7 +58,7 @@ function appendMovie2Row(rowId, movie, baseUrl) {
                               <polygon fill-rule="evenodd" points="13.7714286 5.4939887 9.22142857 4.89188383 7.27142857 0.790044361 5.32142857 4.89188383 0.771428571 5.4939887 4.11428571 8.56096041 3.25071429 13.0202996 7.27142857 10.8282616 11.2921429 13.0202996 10.4285714 8.56096041" stroke="none"></polygon>\
                              </svg>\
                              <div class="rating-value">\
-                              '+movie.positiveReviews+'\
+                              '+ratingValue+'\
                              </div>\
                             </div>\
                            </ml4-rating-or-prediction>\
@@ -53,7 +71,7 @@ function appendMovie2Row(rowId, movie, baseUrl) {
                           </div>\
                           <div class="ratings-display">\
                            <div class="rating-average">\
-                            <span class="rating-large">'+movie.positiveReviews+'</span>\
+                            <span class="rating-large">'+ratingValue+'</span>\
                             <span class="rating-total">Positives</span>\
                            </div>\
                           </div>\
@@ -74,15 +92,34 @@ function addRowFrame(pageId, rowName, rowId, baseUrl) {
                  <a class="plainlink" title="go to the full list" href="'+baseUrl+'collection.html?type=genre&value='+rowName+'">' + rowName + '</a> \
                 </div>\
                 <div class="movie-row">\
+                 <button class="movie-row-back-button" onclick="scrollRow(\'' + rowId + '\', \'left\')">&#10094;</button>\
                  <div class="movie-row-bounds">\
                   <div class="movie-row-scrollable" id="' + rowId +'" style="margin-left: 0px;">\
                   </div>\
                  </div>\
+                 <button class="movie-row-forward-button" onclick="scrollRow(\'' + rowId + '\', \'right\')">&#10095;</button>\
                  <div class="clearfix"></div>\
                 </div>\
                </div>'
      $(pageId).prepend(divstr);
 };
+
+function scrollRow(rowId, direction) {
+    var container = document.getElementById(rowId);
+    var scrollAmount = 600;
+    if (direction === 'left') {
+        container.scrollLeft -= scrollAmount;
+    } else {
+        container.scrollLeft += scrollAmount;
+    }
+}
+
+function searchGame() {
+    var query = document.getElementById('omnisearch-typeahead').value;
+    if (query) {
+        window.location.href = "collection.html?type=search&value=" + encodeURIComponent(query);
+    }
+}
 
 function addRowFrameWithoutLink(pageId, rowName, rowId, baseUrl) {
  var divstr = '<div class="frontpage-section-top"> \
@@ -113,19 +150,39 @@ function addGenreRow(pageId, rowName, rowId, size, baseUrl) {
 function addMovieDetails(containerId, movieId, baseUrl) {
 
     $.getJSON(baseUrl + "getmovie?id=" + movieId, function (movieObject) {
-        var genres = "";
-        if (movieObject.genres) {
-            $.each(movieObject.genres, function (i, genre) {
-                genres += ('<span class="genre-tag"><a href="' + baseUrl + 'collection.html?type=genre&value=' + genre + '">' + genre + '</a></span>');
-            });
+        if (!movieObject) return;
+
+        // Normalize Data
+        var title = movieObject.title || movieObject.name;
+        var id = movieObject.movieId || movieObject.appId;
+        var description = movieObject.description || movieObject.aboutTheGame;
+        var developer = movieObject.developer || movieObject.developers;
+        var publisher = movieObject.publisher || movieObject.publishers;
+        var positiveReviews = movieObject.positiveReviews || movieObject.positive || 0;
+        var headerImage = movieObject.headerImage || ('./posters/' + id + '.jpg');
+        var releaseDate = movieObject.releaseDate || 'N/A';
+        var price = movieObject.price;
+
+        // Genres Processing
+        var genresList = [];
+        if (Array.isArray(movieObject.genres)) {
+            genresList = movieObject.genres;
+        } else if (typeof movieObject.genres === 'string') {
+            genresList = movieObject.genres.split(',').map(function(item) { return item.trim(); });
         }
+
+        var genresHtml = "";
+        $.each(genresList, function (i, genre) {
+            genresHtml += ('<span class="genre-tag"><a href="' + baseUrl + 'collection.html?type=genre&value=' + genre + '">' + genre + '</a></span>');
+        });
 
         // Media processing
         var mediaItems = [];
         
-        // Add videos first
-        if (movieObject.productionVideos) {
-            var vids = movieObject.productionVideos.split(",");
+        // Add videos
+        var videoSource = movieObject.productionVideos || movieObject.movies;
+        if (videoSource) {
+            var vids = videoSource.split(",");
             $.each(vids, function(i, vid){
                 if(vid.trim() !== "") {
                     mediaItems.push({type: 'video', src: vid.trim()});
@@ -143,7 +200,7 @@ function addMovieDetails(containerId, movieId, baseUrl) {
             });
         }
 
-        // Main Display (Default to first item)
+        // Main Display (Default to first item or header image)
         var mainDisplayHtml = "";
         if (mediaItems.length > 0) {
             if (mediaItems[0].type === 'video') {
@@ -152,7 +209,7 @@ function addMovieDetails(containerId, movieId, baseUrl) {
                 mainDisplayHtml = '<img id="main-media-image" src="' + mediaItems[0].src + '" style="width:100%; height:100%; object-fit: contain;"><video id="main-media-video" width="100%" height="100%" controls style="display:none;"></video>';
             }
         } else {
-             mainDisplayHtml = '<img id="main-media-image" src="' + (movieObject.headerImage || './posters/' + movieObject.movieId + '.jpg') + '" style="width:100%; height:100%; object-fit: contain;">';
+             mainDisplayHtml = '<img id="main-media-image" src="' + headerImage + '" style="width:100%; height:100%; object-fit: contain;">';
         }
 
         // Slider
@@ -165,8 +222,8 @@ function addMovieDetails(containerId, movieId, baseUrl) {
             }
         });
 
-        var priceDisplay = movieObject.price ? "$" + movieObject.price : "Free";
-        if (movieObject.price === "0") priceDisplay = "Free to Play";
+        var priceDisplay = price ? "$" + price : "Free";
+        if (price === 0 || price === "0") priceDisplay = "Free to Play";
 
         var languages = movieObject.supportedLanguages || 'N/A';
         if (languages !== 'N/A' && languages.startsWith('[') && languages.endsWith(']')) {
@@ -185,7 +242,7 @@ function addMovieDetails(containerId, movieId, baseUrl) {
             <div class="game-details-container" style="color: #c6d4df; background-color: #1b2838; padding: 20px; max-width: 1200px; margin: 0 auto;">
                 <div class="row">
                     <div class="col-md-12">
-                        <h1 class="game-title" style="color: #fff; margin-bottom: 20px;">${movieObject.title}</h1>
+                        <h1 class="game-title" style="color: #fff; margin-bottom: 20px;">${title}</h1>
                     </div>
                 </div>
                 
@@ -203,19 +260,19 @@ function addMovieDetails(containerId, movieId, baseUrl) {
                     <!-- Right Column: Info -->
                     <div class="col-md-4">
                         <div class="game-info-panel">
-                            <img src="${movieObject.headerImage}" style="width: 100%; margin-bottom: 20px;">
+                            <img src="${headerImage}" style="width: 100%; margin-bottom: 20px;">
                             
                             <div class="info-row">
                                 <span class="info-label">Release Date:</span>
-                                <span class="info-value">${movieObject.releaseDate || 'N/A'}</span>
+                                <span class="info-value">${releaseDate}</span>
                             </div>
                             <div class="info-row">
                                 <span class="info-label">Developer:</span>
-                                <span class="info-value">${movieObject.developer || 'N/A'}</span>
+                                <span class="info-value">${developer || 'N/A'}</span>
                             </div>
                             <div class="info-row">
                                 <span class="info-label">Publisher:</span>
-                                <span class="info-value">${movieObject.publisher || 'N/A'}</span>
+                                <span class="info-value">${publisher || 'N/A'}</span>
                             </div>
                             <div class="info-row">
                                 <span class="info-label">Price:</span>
@@ -223,7 +280,7 @@ function addMovieDetails(containerId, movieId, baseUrl) {
                             </div>
                              <div class="info-row">
                                 <span class="info-label">Reviews:</span>
-                                <span class="info-value">${movieObject.positiveReviews} Positive</span>
+                                <span class="info-value">${positiveReviews} Positive</span>
                             </div>
                             
                             <div class="info-section" style="margin-top: 20px;">
@@ -234,7 +291,7 @@ function addMovieDetails(containerId, movieId, baseUrl) {
                             <div class="info-section" style="margin-top: 20px;">
                                 <div class="info-label">Genres:</div>
                                 <div class="genre-list">
-                                    ${genres}
+                                    ${genresHtml}
                                 </div>
                             </div>
                         </div>
@@ -247,7 +304,7 @@ function addMovieDetails(containerId, movieId, baseUrl) {
                         <div class="game-description">
                             <h3 style="color: #fff; border-bottom: 1px solid #3a4b5c; padding-bottom: 10px;">About This Game</h3>
                             <div style="font-size: 14px; line-height: 1.6; color: #acb2b8;">
-                                ${movieObject.description}
+                                ${description}
                             </div>
                         </div>
                     </div>

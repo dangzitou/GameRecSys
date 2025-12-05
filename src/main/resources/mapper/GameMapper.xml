@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sparrowrecsys.online.mapper.GameMapper">
+
+  <resultMap id="GameResultMap" type="com.sparrowrecsys.online.model.Game">
+    <id property="appId" column="AppID"/>
+    <result property="name" column="Name"/>
+    <result property="releaseDate" column="Release_date"/>
+    <result property="estimatedOwners" column="Estimated_owners"/>
+    <result property="peakCCU" column="Peak_CCU"/>
+    <result property="requiredAge" column="Required_age"/>
+    <result property="price" column="Price"/>
+    <result property="discount" column="Discount"/>
+    <result property="dlcCount" column="DLC_count"/>
+    <result property="aboutTheGame" column="About_the_game"/>
+    <result property="supportedLanguages" column="Supported_languages"/>
+    <result property="fullAudioLanguages" column="Full_audio_languages"/>
+    <result property="reviews" column="Reviews"/>
+    <result property="headerImage" column="Header_image"/>
+    <result property="website" column="Website"/>
+    <result property="supportUrl" column="Support_url"/>
+    <result property="supportEmail" column="Support_email"/>
+    <result property="windows" column="Windows"/>
+    <result property="mac" column="Mac"/>
+    <result property="linux" column="Linux"/>
+    <result property="metacriticScore" column="Metacritic_score"/>
+    <result property="metacriticUrl" column="Metacritic_url"/>
+    <result property="userScore" column="User_score"/>
+    <result property="positive" column="Positive"/>
+    <result property="negative" column="Negative"/>
+    <result property="scoreRank" column="Score_rank"/>
+    <result property="achievements" column="Achievements"/>
+    <result property="recommendations" column="Recommendations"/>
+    <result property="notes" column="Notes"/>
+    <result property="averagePlaytimeForever" column="Average_playtime_forever"/>
+    <result property="averagePlaytimeTwoWeeks" column="Average_playtime_two_weeks"/>
+    <result property="medianPlaytimeForever" column="Median_playtime_forever"/>
+    <result property="medianPlaytimeTwoWeeks" column="Median_playtime_two_weeks"/>
+    <result property="developers" column="Developers"/>
+    <result property="publishers" column="Publishers"/>
+    <result property="categories" column="Categories"/>
+    <result property="genres" column="Genres"/>
+    <result property="tags" column="Tags"/>
+    <result property="screenshots" column="Screenshots"/>
+    <result property="movies" column="Movies"/>
+  </resultMap>
+
+  <select id="selectGameById" resultMap="GameResultMap">
+    SELECT * FROM game_data WHERE AppID = #{appId}
+  </select>
+
+  <select id="selectAllGames" resultMap="GameResultMap">
+    SELECT * FROM game_data
+  </select>
+
+  <select id="searchGames" resultMap="GameResultMap">
+    SELECT * FROM game_data 
+    WHERE Name LIKE CONCAT('%', #{query}, '%') 
+    LIMIT #{limit}
+  </select>
+
+  <select id="selectGamesByGenre" resultMap="GameResultMap">
+    SELECT * FROM game_data 
+    WHERE Genres LIKE CONCAT('%', #{genre}, '%') 
+    LIMIT #{limit}
+  </select>
+
+</mapper>
