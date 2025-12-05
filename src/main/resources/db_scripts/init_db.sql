@@ -61,3 +61,17 @@ CREATE TABLE IF NOT EXISTS user_account (
     INDEX idx_username (username),
     INDEX idx_email (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户账户表';
+
+-- 用户游戏评分表
+CREATE TABLE IF NOT EXISTS user_game_rating (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL COMMENT '用户ID',
+    game_id INT NOT NULL COMMENT '游戏ID (对应 AppID)',
+    rating DECIMAL(2,1) NOT NULL COMMENT '评分 1.0-5.0',
+    timestamp BIGINT NOT NULL COMMENT '评分时间戳',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_user_game (user_id, game_id),
+    INDEX idx_user_id (user_id),
+    INDEX idx_game_id (game_id),
+    FOREIGN KEY (user_id) REFERENCES user_account(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
