@@ -1,7 +1,8 @@
-package com.sparrowrecsys.online.service;
+package com.sparrowrecsys.online.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparrowrecsys.online.model.Game;
+import com.sparrowrecsys.online.service.GameService;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -9,9 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * MovieService, return information of a specific movie
+ * GameDetailController, return information of a specific game
  */
-
 public class GameDetailController extends HttpServlet {
     protected void doGet(HttpServletRequest request,
             HttpServletResponse response) throws IOException {
@@ -21,11 +21,11 @@ public class GameDetailController extends HttpServlet {
             response.setCharacterEncoding("UTF-8");
             response.setHeader("Access-Control-Allow-Origin", "*");
 
-            // get movie id via url parameter
-            String movieId = request.getParameter("id");
+            // get game id via url parameter
+            String gameId = request.getParameter("id");
 
             // get game object from GameService (DB)
-            Game game = GameService.getInstance().getGameById(Integer.parseInt(movieId));
+            Game game = GameService.getInstance().getGameById(Integer.parseInt(gameId));
 
             // convert game object to json format and return
             if (null != game) {
@@ -42,3 +42,4 @@ public class GameDetailController extends HttpServlet {
         }
     }
 }
+

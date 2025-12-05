@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sparrowrecsys.online.mapper.UserAccountMapper">
+
+  <resultMap id="UserAccountResultMap" type="com.sparrowrecsys.online.model.UserAccount">
+    <id property="id" column="id"/>
+    <result property="username" column="username"/>
+    <result property="password" column="password"/>
+    <result property="email" column="email"/>
+    <result property="nickname" column="nickname"/>
+    <result property="avatar" column="avatar"/>
+    <result property="status" column="status"/>
+    <result property="createdAt" column="created_at"/>
+    <result property="updatedAt" column="updated_at"/>
+    <result property="lastLoginAt" column="last_login_at"/>
+  </resultMap>
+
+  <select id="selectByUsername" resultMap="UserAccountResultMap">
+    SELECT * FROM user_account WHERE username = #{username}
+  </select>
+
+  <select id="selectByEmail" resultMap="UserAccountResultMap">
+    SELECT * FROM user_account WHERE email = #{email}
+  </select>
+
+  <select id="selectById" resultMap="UserAccountResultMap">
+    SELECT * FROM user_account WHERE id = #{id}
+  </select>
+
+  <insert id="insert" parameterType="com.sparrowrecsys.online.model.UserAccount" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO user_account (username, password, email, nickname, avatar, status)
+    VALUES (#{username}, #{password}, #{email}, #{nickname}, #{avatar}, #{status})
+  </insert>
+
+  <update id="update" parameterType="com.sparrowrecsys.online.model.UserAccount">
+    UPDATE user_account
+    <set>
+      <if test="email != null">email = #{email},</if>
+      <if test="nickname != null">nickname = #{nickname},</if>
+      <if test="avatar != null">avatar = #{avatar},</if>
+      <if test="status != null">status = #{status},</if>
+      <if test="password != null">password = #{password},</if>
+    </set>
+    WHERE id = #{id}
+  </update>
+
+  <update id="updateLastLoginTime">
+    UPDATE user_account SET last_login_at = CURRENT_TIMESTAMP WHERE id = #{id}
+  </update>
+
+</mapper>
+

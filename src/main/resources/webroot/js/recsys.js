@@ -487,4 +487,251 @@ $(document).ready(function () {
             searchGame();
         }
     });
+
+    // Check login status on page load
+    checkLoginStatus();
+
+    // Close dropdown when clicking outside
+    $(document).on('click', function (e) {
+        if (!$(e.target).closest('.user-menu-container').length) {
+            $('#userDropdown').removeClass('show');
+        }
+    });
 });
+
+// ========== Auth Functions ==========
+
+var API_BASE_URL = window.location.protocol + "//" + window.location.host;
+
+// Check if user is logged in
+function checkLoginStatus() {
+    var token = localStorage.getItem('authToken');
+    var userInfo = localStorage.getItem('userInfo');
+
+    if (token && userInfo) {
+        try {
+            var user = JSON.parse(userInfo);
+            showLoggedInState(user);
+        } catch (e) {
+            handleLogout();
+        }
+    } else {
+        showGuestState();
+    }
+}
+
+// Show logged in state
+function showLoggedInState(user) {
+    $('#guestAuthButtons').addClass('hidden');
+    $('#userMenuContainer').addClass('logged-in');
+
+    var displayName = user.nickname || user.username || '用户';
+    $('#userName').text(displayName);
+    $('#userAvatar').text(displayName.charAt(0).toUpperCase());
+}
+
+// Show guest state
+function showGuestState() {
+    $('#guestAuthButtons').removeClass('hidden');
+    $('#userMenuContainer').removeClass('logged-in');
+}
+
+// Toggle user dropdown
+function toggleUserDropdown() {
+    $('#userDropdown').toggleClass('show');
+}
+
+// Open auth modal
+function openAuthModal(tab) {
+    $('#authModalOverlay').addClass('show');
+    switchAuthTab(tab || 'login');
+    hideAuthMessage();
+}
+
+// Close auth modal
+function closeAuthModal() {
+    $('#authModalOverlay').removeClass('show');
+    // Reset forms
+    $('#loginForm')[0].reset();
+    $('#registerForm')[0].reset();
+    hideAuthMessage();
+}
+
+// Close modal when clicking overlay
+function closeAuthModalOnOverlay(event) {
+    if (event.target.id === 'authModalOverlay') {
+        closeAuthModal();
+    }
+}
+
+// Switch between login and register tabs
+function switchAuthTab(tab) {
+    hideAuthMessage();
+
+    if (tab === 'login') {
+        $('#loginTab').addClass('active');
+        $('#registerTab').removeClass('active');
+        $('#loginForm').addClass('active');
+        $('#registerForm').removeClass('active');
+        $('#authModalTitle').text('登录');
+    } else {
+        $('#loginTab').removeClass('active');
+        $('#registerTab').addClass('active');
+        $('#loginForm').removeClass('active');
+        $('#registerForm').addClass('active');
+        $('#authModalTitle').text('注册');
+    }
+}
+
+// Show auth message
+function showAuthMessage(message, type) {
+    var $msg = $('#authMessage');
+    $msg.text(message);
+    $msg.removeClass('success error').addClass(type).addClass('show');
+}
+
+// Hide auth message
+function hideAuthMessage() {
+    $('#authMessage').removeClass('show');
+}
+
+// Handle login
+function handleLogin(event) {
+    event.preventDefault();
+
+    var username = $('#loginUsername').val().trim();
+    var password = $('#loginPassword').val();
+
+    if (!username || !password) {
+        showAuthMessage('请填写用户名和密码', 'error');
+        return;
+    }
+
+    $('#loginSubmitBtn').prop('disabled', true).text('登录中...');
+
+    $.ajax({
+        url: API_BASE_URL + '/auth/login',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            username: username,
+            password: password
+        }),
+        success: function (response) {
+            if (response.success) {
+                // Save token and user info
+                localStorage.setItem('authToken', response.token);
+                localStorage.setItem('userInfo', JSON.stringify(response.user));
+
+                showAuthMessage('登录成功！', 'success');
+
+                setTimeout(function () {
+                    closeAuthModal();
+                    showLoggedInState(response.user);
+                }, 1000);
+            } else {
+                showAuthMessage(response.message || '登录失败', 'error');
+            }
+        },
+        error: function (xhr) {
+            var msg = '登录失败，请稍后重试';
+            try {
+                var resp = JSON.parse(xhr.responseText);
+                if (resp.message) msg = resp.message;
+            } catch (e) { }
+            showAuthMessage(msg, 'error');
+        },
+        complete: function () {
+            $('#loginSubmitBtn').prop('disabled', false).text('登录');
+        }
+    });
+}
+
+// Handle register
+function handleRegister(event) {
+    event.preventDefault();
+
+    var username = $('#registerUsername').val().trim();
+    var email = $('#registerEmail').val().trim();
+    var nickname = $('#registerNickname').val().trim();
+    var password = $('#registerPassword').val();
+    var confirmPassword = $('#registerConfirmPassword').val();
+
+    if (!username) {
+        showAuthMessage('请填写用户名', 'error');
+        return;
+    }
+
+    if (password.length < 6) {
+        showAuthMessage('密码长度不能少于6位', 'error');
+        return;
+    }
+
+    if (password !== confirmPassword) {
+        showAuthMessage('两次输入的密码不一致', 'error');
+        return;
+    }
+
+    $('#registerSubmitBtn').prop('disabled', true).text('注册中...');
+
+    $.ajax({
+        url: API_BASE_URL + '/auth/register',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            username: username,
+            password: password,
+            email: email || null,
+            nickname: nickname || null
+        }),
+        success: function (response) {
+            if (response.success) {
+                showAuthMessage('注册成功！请登录', 'success');
+
+                setTimeout(function () {
+                    switchAuthTab('login');
+                    $('#loginUsername').val(username);
+                }, 1500);
+            } else {
+                showAuthMessage(response.message || '注册失败', 'error');
+            }
+        },
+        error: function (xhr) {
+            var msg = '注册失败，请稍后重试';
+            try {
+                var resp = JSON.parse(xhr.responseText);
+                if (resp.message) msg = resp.message;
+            } catch (e) { }
+            showAuthMessage(msg, 'error');
+        },
+        complete: function () {
+            $('#registerSubmitBtn').prop('disabled', false).text('注册');
+        }
+    });
+}
+
+// Handle logout
+function handleLogout() {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userInfo');
+    $('#userDropdown').removeClass('show');
+    showGuestState();
+}
+
+// Get auth token for API calls
+function getAuthToken() {
+    return localStorage.getItem('authToken');
+}
+
+// Make authenticated API call
+function authFetch(url, options) {
+    options = options || {};
+    options.headers = options.headers || {};
+
+    var token = getAuthToken();
+    if (token) {
+        options.headers['Authorization'] = 'Bearer ' + token;
+    }
+
+    return $.ajax(url, options);
+}
