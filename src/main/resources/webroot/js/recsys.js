@@ -168,6 +168,19 @@ function addMovieDetails(containerId, movieId, baseUrl) {
         var priceDisplay = movieObject.price ? "$" + movieObject.price : "Free";
         if (movieObject.price === "0") priceDisplay = "Free to Play";
 
+        var languages = movieObject.supportedLanguages || 'N/A';
+        if (languages !== 'N/A' && languages.startsWith('[') && languages.endsWith(']')) {
+             var content = languages.substring(1, languages.length - 1);
+             if (content.trim() === "") {
+                 languages = "N/A";
+             } else {
+                 var parts = content.split(",");
+                 languages = parts.map(function(lang) {
+                     return lang.trim().replace(/^['"]|['"]$/g, '');
+                 }).join(", ");
+             }
+        }
+
         var movieDetails = `
             <div class="game-details-container" style="color: #c6d4df; background-color: #1b2838; padding: 20px; max-width: 1200px; margin: 0 auto;">
                 <div class="row">
@@ -215,7 +228,7 @@ function addMovieDetails(containerId, movieId, baseUrl) {
                             
                             <div class="info-section" style="margin-top: 20px;">
                                 <div class="info-label">Supported Languages:</div>
-                                <div class="info-value small-text" style="max-height: 100px; overflow-y: auto;">${movieObject.supportedLanguages || 'N/A'}</div>
+                                <div class="info-value small-text" style="max-height: 100px; overflow-y: auto;">${languages}</div>
                             </div>
                             
                             <div class="info-section" style="margin-top: 20px;">
