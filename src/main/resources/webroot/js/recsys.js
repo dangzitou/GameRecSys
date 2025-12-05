@@ -140,11 +140,72 @@ function addRowFrameWithoutLink(pageId, rowName, rowId, baseUrl) {
 function addGenreRow(pageId, rowName, rowId, size, baseUrl) {
     addRowFrame(pageId, rowName, rowId, baseUrl);
     $.getJSON(baseUrl + "getrecommendation?genre="+rowName+"&size="+size+"&sortby=positiveReviews", function(result){
-        $.each(result, function(i, movie){
+        // Handle new response format {games: [...], totalPages: ...}
+        var games = result.games || result; // Fallback if backend not updated yet
+        $.each(games, function(i, movie){
           appendMovie2Row(rowId, movie, baseUrl);
         });
     });
 };
+
+function addGenrePage(pageId, rowName, rowId, page, size, baseUrl) {
+    var divstr = '<div class="frontpage-section-top"> \
+                <div class="explore-header frontpage-section-header">\
+                 <a class="plainlink" title="go to the full list" href="'+baseUrl+'collection.html?type=genre&value='+rowName+'">' + rowName + '</a> \
+                </div>\
+                <div class="movie-row">\
+                 <div class="movie-row-bounds">\
+                  <div class="movie-row-scrollable" id="' + rowId +'" style="margin-left: 0px; white-space: normal;">\
+                  </div>\
+                 </div>\
+                 <div class="clearfix"></div>\
+                </div>\
+                <div class="pagination-container" style="text-align: center; margin-top: 20px; padding-bottom: 20px;">\
+                    <button class="btn btn-default" onclick="changePage(\''+rowName+'\', '+(page-1)+')" '+(page<=1?'disabled':'')+'>Previous</button>\
+                    <span style="margin: 0 15px; font-weight: bold; color: #fff;">Page '+page+'</span>\
+                    <button class="btn btn-default" id="next-page-btn" onclick="changePage(\''+rowName+'\', '+(page+1)+')">Next</button>\
+                </div>\
+               </div>';
+               
+    $(pageId).html(divstr);
+    
+    $.getJSON(baseUrl + "getrecommendation?genre="+rowName+"&size="+size+"&page="+page+"&sortby=positiveReviews", function(result){
+        var games = result.games;
+        var totalPages = result.totalPages;
+        var currentPage = result.currentPage;
+
+        $.each(games, function(i, movie){
+          appendMovie2Row(rowId, movie, baseUrl);
+        });
+        
+        // Update pagination controls
+        var paginationHtml = '';
+        paginationHtml += '<button class="btn btn-default" onclick="changePage(\''+rowName+'\', '+(currentPage-1)+')" '+(currentPage<=1?'disabled':'')+'>Previous</button>';
+        paginationHtml += '<span style="margin: 0 15px; font-weight: bold; color: #fff;">Page '+currentPage+' of '+totalPages+'</span>';
+        paginationHtml += '<button class="btn btn-default" onclick="changePage(\''+rowName+'\', '+(currentPage+1)+')" '+(currentPage>=totalPages?'disabled':'')+'>Next</button>';
+        
+        // Jump to page
+        paginationHtml += '<span style="margin-left: 20px; color: #ccc;">Go to: </span>';
+        paginationHtml += '<input type="number" id="jump-input-'+rowId+'" min="1" max="'+totalPages+'" style="width: 60px; color: #000; text-align: center;" value="'+currentPage+'">';
+        paginationHtml += '<button class="btn btn-default btn-sm" onclick="jumpToPage(\''+rowName+'\', \''+rowId+'\')">Go</button>';
+
+        $(pageId).find('.pagination-container').html(paginationHtml);
+    });
+}
+
+function jumpToPage(genre, rowId) {
+    var inputVal = $('#jump-input-'+rowId).val();
+    var page = parseInt(inputVal);
+    if(page && page > 0) {
+        changePage(genre, page);
+    }
+}
+
+function changePage(genre, newPage) {
+    if (newPage < 1) return;
+    window.location.href = "collection.html?type=genre&value=" + genre + "&page=" + newPage;
+}
+
 
 
 function addMovieDetails(containerId, movieId, baseUrl) {

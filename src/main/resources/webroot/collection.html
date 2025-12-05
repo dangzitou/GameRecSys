@@ -80,10 +80,12 @@ function getQueryString(name, windowLocation) {
 var windowLocation = window.location;
 var type = getQueryString("type",windowLocation);
 var value = getQueryString("value",windowLocation);
+var page = getQueryString("page", windowLocation);
+var pageNum = page ? parseInt(page) : 1;
 
 var baseUrl = windowLocation.protocol + "//" + windowLocation.host + "/"
 if(type == "genre"){
-    addGenreRow('#recPage', value, value.toLowerCase() + '-collection', 100, baseUrl);
+    addGenrePage('#recPage', value, value.toLowerCase() + '-collection', pageNum, 100, baseUrl);
 } else if (type == "search") {
     // Implement search results display
     var rowName = "Search Results: " + value;

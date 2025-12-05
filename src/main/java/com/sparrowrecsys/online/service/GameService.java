@@ -1,5 +1,6 @@
 package com.sparrowrecsys.online.service;
 
+import com.github.pagehelper.PageHelper;
 import com.sparrowrecsys.online.mapper.GameMapper;
 import com.sparrowrecsys.online.model.Game;
 import org.apache.ibatis.io.Resources;
@@ -59,7 +60,7 @@ public class GameService {
         }
     }
 
-    public List<Game> getGamesByGenre(String genre, int limit, String sortBy) {
+    public List<Game> getGamesByGenre(String genre, int page, int size, String sortBy) {
         try (SqlSession session = sqlSessionFactory.openSession()) {
             GameMapper mapper = session.getMapper(GameMapper.class);
             String dbSortBy = null;
@@ -71,9 +72,11 @@ public class GameService {
                 dbSortBy = "Positive";
             }
 
-            List<Game> games = mapper.selectGamesByGenre(genre, limit, dbSortBy);
-            logger.info("getGamesByGenre: genre='{}', limit={}, sortBy='{}' (mapped to '{}'), resultSize={}", genre,
-                    limit, sortBy, dbSortBy, games.size());
+            PageHelper.startPage(page, size);
+            List<Game> games = mapper.selectGamesByGenre(genre, dbSortBy);
+            logger.info("getGamesByGenre: genre='{}', page={}, size={}, sortBy='{}' (mapped to '{}'), resultSize={}",
+                    genre,
+                    page, size, sortBy, dbSortBy, games.size());
             return games;
         }
     }
