@@ -1,20 +1,75 @@
 # GameRecSys
 GameRecSys是一个游戏推荐系统（原为电影推荐系统），名字GameRecSys（Fork from SparrowRecSys），取自“麻雀虽小，五脏俱全”之意。项目是一个基于maven的混合语言项目，同时包含了TensorFlow，Spark，Jetty Server等推荐系统的不同模块。
 
-## 基于SparrowRecSys的实践课程
-受极客时间邀请开设 [深度学习推荐系统实战](http://gk.link/a/10lyE) 课程，详细讲解了SparrowRecSys的所有技术细节，覆盖了深度学习模型结构，模型训练，特征工程，模型评估，模型线上服务及推荐服务器内部逻辑等模块。
-
 ## 环境要求
-* Java 8
-* Scala 2.11
-* Python 3.6+
-* TensorFlow 2.0+
+* Java 8+
+* Maven 3+
+* MySQL 8.0+
+* (Optional) IntelliJ IDEA or VS Code
 
 ## 快速开始
-将项目用IntelliJ打开后，找到`RecSysServer`，右键点选`Run`，然后在浏览器中输入`http://localhost:6010/`即可看到推荐系统的前端效果。
+
+### 1. 数据库配置
+1. 确保 MySQL 服务已启动。
+2. 创建数据库并初始化表结构：
+   在 MySQL 中执行 `src/main/resources/db_scripts/init_db.sql` 脚本。
+   ```sql
+   -- 示例命令 (请根据实际路径调整)
+   source src/main/resources/db_scripts/init_db.sql;
+   ```
+3. 导入初始数据：
+   由于数据文件 `migrate_data.sql` 较大，建议直接在终端（命令行）运行以下命令导入，而不是复制粘贴内容。
+   
+   在项目根目录下执行：
+   ```bash
+   mysql -u root -p gamerecsys < src/main/resources/db_scripts/migrate_data.sql
+   ```
+   *(输入命令后回车，然后输入你的 MySQL 密码)*
+
+   或者在 MySQL 交互式命令行中执行：
+   ```sql
+   use gamerecsys;
+   source src/main/resources/db_scripts/migrate_data.sql;
+   ```
+4. 修改数据库连接配置：
+   打开 `src/main/resources/mybatis-config.xml`，找到 `<dataSource>` 标签，修改 `username` 和 `password` 为你的 MySQL 用户名和密码。
+   ```xml
+   <property name="username" value="root"/>
+   <property name="password" value="your_password"/>
+   ```
+
+### 2. 启动项目
+
+#### 方式一：使用 IntelliJ IDEA (推荐)
+1. 用 IntelliJ IDEA 打开项目。
+2. 等待 Maven 依赖下载完成。
+3. 找到 `src/main/java/com/sparrowrecsys/online/RecSysServer.java` 文件。
+4. 右键点击 `RecSysServer` 类，选择 `Run 'RecSysServer.main()'`.
+
+#### 方式二：使用命令行
+1. 在项目根目录下编译项目：
+   ```bash
+   mvn clean compile
+   ```
+2. 启动服务：
+   ```bash
+   mvn exec:java -Dexec.mainClass="com.sparrowrecsys.online.RecSysServer"
+   ```
+   或者打包运行：
+   ```bash
+   mvn package
+   java -jar target/SparrowRecSys-1.0-SNAPSHOT-jar-with-dependencies.jar
+   ```
+
+### 3. 访问系统
+打开浏览器访问：[http://localhost:6010/](http://localhost:6010/)
 
 ## 项目数据
-项目数据已更新为游戏数据集（`games_filtered.csv`），来源于Steam等平台的游戏数据。原项目数据来源于开源电影数据集[MovieLens](https://grouplens.org/datasets/movielens/)，项目自带数据集对MovieLens数据集进行了精简，仅保留1000部电影和相关评论、用户数据。全量数据集请到MovieLens官方网站进行下载，推荐使用MovieLens 20M Dataset。
+项目数据为游戏数据集（`games_filtered.csv`），来源于Steam等平台的游戏数据。
+
+---
+
+本项目改造自SparrowRecSys。
 
 ## SparrowRecSys技术架构
 SparrowRecSys技术架构遵循经典的工业级深度学习推荐系统架构，包括了离线数据处理、模型训练、近线的流处理、线上模型服务、前端推荐结果显示等多个模块。以下是SparrowRecSys的架构图：
