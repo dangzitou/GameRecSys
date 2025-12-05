@@ -79,12 +79,12 @@ function getQueryString(name, windowLocation) {
 };
 
 var windowLocation = window.location;
-var movieId = getQueryString("movieId",windowLocation);
+var id = getQueryString("id",windowLocation);
 
 var baseUrl = windowLocation.protocol + "//" + windowLocation.host + "/"
 
-addMovieDetails("movie-details-container", movieId, baseUrl);
-addRelatedMovies("#recPage", "relatedMovies", movieId, baseUrl);
+addMovieDetails("movie-details-container", id, baseUrl);
+addRelatedMovies("#recPage", "relatedMovies", id, baseUrl);
 
 </script>
 </html>

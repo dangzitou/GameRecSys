@@ -36,7 +36,7 @@ function appendMovie2Row(rowId, movie, baseUrl) {
                       <div class="movie-card-md1">\
                        <div class="card">\
                         <link-or-emit>\
-                         <a uisref="base.movie" href="./movie.html?movieId='+id+'">\
+                         <a uisref="base.movie" href="./game.html?id='+id+'">\
                          <span>\
                            <div class="poster">\
                             <img src="' + imageUrl + '" style="width:100%; height:100%; object-fit: cover;" />\
@@ -47,7 +47,7 @@ function appendMovie2Row(rowId, movie, baseUrl) {
                         <div class="overlay">\
                          <div class="above-fold">\
                           <link-or-emit>\
-                           <a uisref="base.movie" href="./movie.html?movieId='+id+'">\
+                           <a uisref="base.movie" href="./game.html?id='+id+'">\
                            <span><p class="title">' + title + '</p></span></a>\
                           </link-or-emit>\
                           <div class="rating-indicator">\
@@ -332,3 +332,19 @@ window.changeMainMedia = function(type, src) {
         img.src = src;
     }
 };
+
+$(document).ready(function() {
+    // Bind search button click
+    $('.base-header-search-box button').on('click', function(e) {
+        e.preventDefault();
+        searchGame();
+    });
+
+    // Bind enter key in search input
+    $('#omnisearch-typeahead').on('keypress', function(e) {
+        if (e.which === 13) {
+            e.preventDefault();
+            searchGame();
+        }
+    });
+});
