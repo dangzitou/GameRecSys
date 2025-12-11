@@ -20,21 +20,39 @@ GameRecSys是一个游戏推荐系统（原为电影推荐系统），名字Game
 3. 导入初始数据：
    由于数据文件 `migrate_data.sql` 较大，建议直接在终端（命令行）运行以下命令导入，而不是复制粘贴内容。
    
-   在项目根目录下cmd执行：
+   **Windows 用户:**
+
+   在项目根目录下 cmd (命令提示符) 执行：
    ```bash
    mysql -u root -p gamerecsys < src/main/resources/db_scripts/migrate_data.sql
    ```
-   *(输入命令后回车，然后输入你的 MySQL 密码)*
    
-   如果是在vscode终端（默认使用Powershell），执行：
+   如果是在 VS Code 终端（默认使用 PowerShell），执行：
    ```bash
    cmd /c "mysql -u root -p gamerecsys < src/main/resources/db_scripts/migrate_data.sql"
    ```
-   或者在 MySQL 交互式命令行中执行：
-   ```sql
-   use gamerecsys;
-   source src/main/resources/db_scripts/migrate_data.sql;
+
+   **Mac / Linux 用户:**
+
+   在终端 (Terminal) 执行：
+   ```bash
+   mysql -u root -p gamerecsys < src/main/resources/db_scripts/migrate_data.sql
    ```
+
+   *(输入命令后回车，然后输入你的 MySQL 密码)*
+
+   **通用方法 (进入 MySQL 命令行执行):**
+   
+   1. 打开终端 (Windows 下是 cmd 或 PowerShell，Mac 下是 Terminal)。
+   2. 输入以下命令并回车进入 MySQL 命令行（需要输入密码）：
+      ```bash
+      mysql -u root -p
+      ```
+   3. 在 MySQL 命令行中执行以下 SQL 语句导入数据：
+      ```sql
+      use gamerecsys;
+      source src/main/resources/db_scripts/migrate_data.sql;
+      ```
 4. 修改数据库连接配置：
    打开 `src/main/resources/mybatis-config.xml`，找到 `<dataSource>` 标签，修改 `username` 和 `password` 为你的 MySQL 用户名和密码。
    ```xml
