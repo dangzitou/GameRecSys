@@ -14,11 +14,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * RecommendationService, provide recommendation service based on different
- * input
+ * GenreService, provide game list based on genre
  */
 
-public class RecommendationService extends HttpServlet {
+public class GenreService extends HttpServlet {
     protected void doGet(HttpServletRequest request,
             HttpServletResponse response) throws ServletException,
             IOException {
@@ -39,7 +38,7 @@ public class RecommendationService extends HttpServlet {
             int pageNum = (page == null || page.isEmpty()) ? 1 : Integer.parseInt(page);
             int pageSize = (size == null || size.isEmpty()) ? 10 : Integer.parseInt(size);
 
-            System.out.println("RecommendationService: genre=" + genre + ", page=" + pageNum + ", size=" + pageSize
+            System.out.println("GenreService: genre=" + genre + ", page=" + pageNum + ", size=" + pageSize
                     + ", sortby=" + sortby);
 
             // fetch games from DB via GameService
@@ -47,10 +46,10 @@ public class RecommendationService extends HttpServlet {
             PageInfo<Game> pageInfo = new PageInfo<>(games);
 
             if (games == null || games.isEmpty()) {
-                System.out.println("RecommendationService: No games found for genre " + genre);
+                System.out.println("GenreService: No games found for genre " + genre);
             } else {
                 System.out.println(
-                        "RecommendationService: Found " + games.size() + " games. Total pages: " + pageInfo.getPages());
+                        "GenreService: Found " + games.size() + " games. Total pages: " + pageInfo.getPages());
             }
 
             Map<String, Object> responseMap = new HashMap<>();

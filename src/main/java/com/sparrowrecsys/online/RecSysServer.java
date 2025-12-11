@@ -104,7 +104,7 @@ public class RecSysServer {
         context.addServlet(new ServletHolder(new GameDetailController()), "/getgame");
         context.addServlet(new ServletHolder(new UserService()), "/getuser");
         context.addServlet(new ServletHolder(new SimilarGameService()), "/getsimilargame");
-        context.addServlet(new ServletHolder(new RecommendationService()), "/getrecommendation");
+        context.addServlet(new ServletHolder(new GenreService()), "/getrecommendation");
         context.addServlet(new ServletHolder(new RecForYouService()), "/getrecforyou");
         context.addServlet(new ServletHolder(new SearchService()), "/search");
         context.addServlet(new ServletHolder(new AuthController()), "/auth/*");
