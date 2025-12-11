@@ -12,11 +12,34 @@ GameRecSys是一个游戏推荐系统（原为电影推荐系统），名字Game
 ### 1. 数据库配置
 1. 确保 MySQL 服务已启动。
 2. 创建数据库并初始化表结构：
-   在 MySQL 中执行 `src/main/resources/db_scripts/init_db.sql` 脚本。
-   ```sql
-   -- 示例命令 (请根据实际路径调整)
-   source src/main/resources/db_scripts/init_db.sql;
+   需要执行 `src/main/resources/db_scripts/init_db.sql` 脚本。
+
+   **Windows 用户:**
+   
+   在项目根目录下 cmd (命令提示符) 执行：
+   ```bash
+   mysql -u root -p < src/main/resources/db_scripts/init_db.sql
    ```
+   
+   如果是在 VS Code 终端（默认使用 PowerShell），执行：
+   ```bash
+   cmd /c "mysql -u root -p < src/main/resources/db_scripts/init_db.sql"
+   ```
+
+   **Mac / Linux 用户:**
+   
+   在终端 (Terminal) 执行：
+   ```bash
+   mysql -u root -p < src/main/resources/db_scripts/init_db.sql
+   ```
+
+   **通用方法 (进入 MySQL 命令行执行):**
+   
+   1. 登录 MySQL: `mysql -u root -p`
+   2. 执行脚本:
+      ```sql
+      source src/main/resources/db_scripts/init_db.sql;
+      ```
 3. 导入初始数据：
    由于数据文件 `migrate_data.sql` 较大，建议直接在终端（命令行）运行以下命令导入，而不是复制粘贴内容。
    
