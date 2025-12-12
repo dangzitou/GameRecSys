@@ -145,6 +145,15 @@ GameRecSys是一个游戏推荐系统（原为电影推荐系统），名字Game
   - [ ] 添加管理接口，用于手动触发数据重载或模型更新。
   - [ ] 完善日志记录，确保用户行为数据可追溯。
 
+### 最近更新 (Recent Updates)
+- **首页 "为你推荐" 轮播图 (Homepage "Recommended For You" Carousel)**:
+  - 在首页实现了类似 Steam 风格的个性化推荐轮播组件。
+  - 功能包括：
+    - 鼠标悬停显示游戏详情（截图、标签、评价）。
+    - "查看全部" 链接跳转至完整推荐列表。
+    - 媒体展示优化（优先展示图片，禁用视频自动播放）。
+  - **数据依赖**: 该功能依赖于 `src/main/resources/webroot/modeldata/` 目录下的 `itemGraphEmb.csv` (物品图Embedding) 和 `userEmb.csv` (用户Embedding)。请确保这些文件存在且格式正确。
+
 ---
 
 本项目改造自[SparrowRecSys](https://github.com/wzhe06/SparrowRecSys)。
