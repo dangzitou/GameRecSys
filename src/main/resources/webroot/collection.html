@@ -163,6 +163,8 @@ var pageNum = page ? parseInt(page) : 1;
 var baseUrl = windowLocation.protocol + "//" + windowLocation.host + "/"
 if(type == "genre"){
     addGenrePage('#recPage', value, value.toLowerCase() + '-collection', pageNum, 100, baseUrl);
+} else if (type == "recforyou") {
+    addRecForYouPage('#recPage', "Recommended For You", 'recforyou-collection', pageNum, 100, baseUrl, value);
 } else if (type == "search") {
     // Implement search results display
     var rowName = "Search Results: " + value;

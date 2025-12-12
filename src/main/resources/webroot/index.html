@@ -11,9 +11,10 @@
     <meta name="theme-color" content="#ffffff"/>
     <link type="text/plain" rel="author"/>
     <link href="./css/style.css" rel="stylesheet"/>
+    <link href="./css/featured.css" rel="stylesheet"/>
     <link rel="shortcut icon" href="./resources/favicon.ico">
     <script src="./js/jquery-3.2.1.min.js"></script>
-    <script src="./js/recsys.js?v=1.29"></script>
+    <script src="./js/recsys.js?v=1.35"></script>
 </head>
 <body id="root">
 <div>
@@ -138,6 +139,9 @@
 
 var getUrl = window.location;
 var baseUrl = getUrl .protocol + "//" + getUrl.host + "/"
+
+// Add Featured Recommended For You (will only show if logged in)
+addFeaturedRecForYou('#recPage', baseUrl);
 
 addGenreRow('#recPage', 'Action', 'action-collection', 8, baseUrl);
 addGenreRow('#recPage', 'Adventure', 'adventure-collection', 8, baseUrl);

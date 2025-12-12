@@ -82,7 +82,8 @@ public class RecSysServer {
         // For now, let's keep loading it to avoid breaking other endpoints until they
         // are refactored.)
         DataManager.getInstance().loadData(webRootPath + "sampledata/games_filtered.csv",
-                "", "", webRootPath + "modeldata/item2vecEmb.csv", "", "i2vEmb", "uEmb");
+                "", "", webRootPath + "modeldata/itemGraphEmb.csv", webRootPath + "modeldata/userEmb.csv", "i2vEmb",
+                "uEmb");
 
         // Verify data loaded (Legacy check)
         List<GameItem> check = DataManager.getInstance().getGames(10, "positiveReviews");

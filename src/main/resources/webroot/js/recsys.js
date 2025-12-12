@@ -307,14 +307,22 @@ function addGameDetails(containerId, gameId, baseUrl) {
             });
         }
 
-        // Main Display (Default to first item or header image)
+        // Main Display (Default to first image, then video, then header image)
         var mainDisplayHtml = "";
-        if (mediaItems.length > 0) {
-            if (mediaItems[0].type === 'video') {
-                mainDisplayHtml = '<video id="main-media-video" width="100%" height="100%" controls autoplay muted><source src="' + mediaItems[0].src + '" type="video/mp4">Your browser does not support the video tag.</video><img id="main-media-image" src="" style="width:100%; height:100%; object-fit: contain; display:none;">';
-            } else {
-                mainDisplayHtml = '<img id="main-media-image" src="' + mediaItems[0].src + '" style="width:100%; height:100%; object-fit: contain;"><video id="main-media-video" width="100%" height="100%" controls style="display:none;"></video>';
+        var firstImageItem = null;
+        
+        // Find first image
+        for(var i=0; i<mediaItems.length; i++) {
+            if(mediaItems[i].type === 'image') {
+                firstImageItem = mediaItems[i];
+                break;
             }
+        }
+
+        if (firstImageItem) {
+            mainDisplayHtml = '<img id="main-media-image" src="' + firstImageItem.src + '" style="width:100%; height:100%; object-fit: contain;"><video id="main-media-video" width="100%" height="100%" controls style="display:none;"></video>';
+        } else if (mediaItems.length > 0 && mediaItems[0].type === 'video') {
+            mainDisplayHtml = '<video id="main-media-video" width="100%" height="100%" controls muted><source src="' + mediaItems[0].src + '" type="video/mp4">Your browser does not support the video tag.</video><img id="main-media-image" src="" style="width:100%; height:100%; object-fit: contain; display:none;">';
         } else {
             mainDisplayHtml = '<img id="main-media-image" src="' + headerImage + '" style="width:100%; height:100%; object-fit: contain;">';
         }
@@ -956,7 +964,7 @@ function renderUserInfo(user) {
 }
 
 function addRecForYou(userId) {
-    $.get("./recforyou?id=" + userId + "&model=item2vec", function (data) {
+    $.get("./getrecforyou?id=" + userId + "&model=emb", function (data) {
         $("#rec-for-you").empty();
         $.each(data, function (i, game) {
             var row = createGameCardHtml(game);
@@ -964,6 +972,203 @@ function addRecForYou(userId) {
         });
     });
 }
+
+function addFeaturedRecForYou(pageId, baseUrl) {
+    // Get user ID from localStorage
+    var userId = null;
+    try {
+        var userInfoStr = localStorage.getItem('userInfo');
+        if (userInfoStr) {
+            var userInfo = JSON.parse(userInfoStr);
+            userId = userInfo.id;
+        }
+    } catch (e) {}
+
+    if (!userId) {
+        return;
+    }
+
+    // Fetch top 5 recommendations for the carousel
+    $.get(baseUrl + "getrecforyou?id=" + userId + "&model=emb&size=5", function (data) {
+        if (!data || data.length === 0) return;
+
+        var carouselHtml = `
+        <div class="featured-section-container">
+            <div class="featured-header">
+                <a href="${baseUrl}collection.html?type=recforyou&value=${userId}" style="color: #ffffff; text-decoration: none; display: flex; align-items: center;">
+                    Recommended For You <span style="font-size: 14px; margin-left: 10px; color: #66c0f4;">See All ></span>
+                </a>
+            </div>
+            <div class="featured-carousel" id="featuredCarousel">
+                <!-- Items will be injected here -->
+                <a class="featured-prev" onclick="plusFeaturedSlides(-1)">&#10094;</a>
+                <a class="featured-next" onclick="plusFeaturedSlides(1)">&#10095;</a>
+            </div>
+            <div class="featured-dots" id="featuredDots">
+                <!-- Dots will be injected here -->
+            </div>
+        </div>
+        `;
+
+        $(pageId).prepend(carouselHtml);
+
+        $.each(data, function (i, game) {
+            var id = game.gameId || game.appId;
+            var title = game.title || game.name;
+            var imageUrl = game.headerImage || ('./posters/' + id + '.jpg');
+            var price = game.price ? "$" + game.price : "Free to Play";
+            if (game.price === 0 || game.price === "0") price = "Free to Play";
+            
+            // Process screenshots
+            var screenshotsHtml = "";
+            if (game.screenshots) {
+                var shots = game.screenshots.split(",");
+                // Take up to 4 screenshots
+                for(var j=0; j<Math.min(4, shots.length); j++) {
+                    if(shots[j].trim() !== "") {
+                        screenshotsHtml += `<img src="${shots[j].trim()}" class="featured-screenshot" onmouseover="changeFeaturedImage(this, 'featured-img-${i}')">`;
+                    }
+                }
+            }
+
+            // Process genres
+            var genresHtml = "";
+            if (game.genres) {
+                var genresList = Array.isArray(game.genres) ? game.genres : game.genres.split(',');
+                for(var k=0; k<Math.min(3, genresList.length); k++) {
+                    genresHtml += `<span class="featured-tag">${genresList[k].trim()}</span>`;
+                }
+            }
+
+            var itemHtml = `
+            <div class="featured-item ${i === 0 ? 'active' : ''}">
+                <div class="featured-img-container">
+                    <a href="game.html?id=${id}">
+                        <img src="${imageUrl}" class="featured-img" id="featured-img-${i}" onerror="this.src='./images/default_poster.jpg'">
+                    </a>
+                </div>
+                <div class="featured-info">
+                    <div>
+                        <div class="featured-title" title="${title}">${title}</div>
+                        <div class="featured-meta">
+                            ${genresHtml}
+                        </div>
+                        <div class="featured-screenshots">
+                            ${screenshotsHtml}
+                        </div>
+                    </div>
+                    <div class="featured-price">${price}</div>
+                </div>
+            </div>
+            `;
+            
+            $("#featuredCarousel").append(itemHtml);
+            $("#featuredDots").append(`<span class="dot ${i === 0 ? 'active' : ''}" onclick="currentFeaturedSlide(${i+1})"></span>`);
+        });
+
+        // Auto slide
+        // showFeaturedSlides(featuredSlideIndex);
+    });
+}
+
+var featuredSlideIndex = 1;
+
+function plusFeaturedSlides(n) {
+  showFeaturedSlides(featuredSlideIndex += n);
+}
+
+function currentFeaturedSlide(n) {
+  showFeaturedSlides(featuredSlideIndex = n);
+}
+
+function showFeaturedSlides(n) {
+  var i;
+  var slides = document.getElementsByClassName("featured-item");
+  var dots = document.getElementsByClassName("dot");
+  if (n > slides.length) {featuredSlideIndex = 1}    
+  if (n < 1) {featuredSlideIndex = slides.length}
+  for (i = 0; i < slides.length; i++) {
+      slides[i].style.display = "none";  
+      slides[i].classList.remove("active");
+  }
+  for (i = 0; i < dots.length; i++) {
+      dots[i].className = dots[i].className.replace(" active", "");
+  }
+  slides[featuredSlideIndex-1].style.display = "flex";  
+  slides[featuredSlideIndex-1].classList.add("active");
+  dots[featuredSlideIndex-1].className += " active";
+}
+
+function changeFeaturedImage(el, targetId) {
+    document.getElementById(targetId).src = el.src;
+}
+
+function addRecForYouRow(pageId, rowName, rowId, size, baseUrl) {
+    // Get user ID from localStorage
+    var userId = null;
+    try {
+        var userInfoStr = localStorage.getItem('userInfo');
+        if (userInfoStr) {
+            var userInfo = JSON.parse(userInfoStr);
+            userId = userInfo.id;
+        }
+    } catch (e) {}
+
+    if (!userId) {
+        // If not logged in, don't show the row
+        return;
+    }
+
+    // Custom addRowFrame that links to recforyou type
+    var divstr = '<div class="frontpage-section-top"> \
+                <div class="explore-header frontpage-section-header">\
+                 <a class="plainlink" title="go to the full list" href="'+ baseUrl + 'collection.html?type=recforyou&value=' + userId + '">' + rowName + '</a> \
+                </div>\
+                <div class="movie-row">\
+                 <button class="movie-row-back-button" onclick="scrollRow(\'' + rowId + '\', \'left\')">&#10094;</button>\
+                 <div class="movie-row-bounds">\
+                  <div class="movie-row-scrollable" id="' + rowId + '" style="margin-left: 0px;">\
+                  </div>\
+                 </div>\
+                 <button class="movie-row-forward-button" onclick="scrollRow(\'' + rowId + '\', \'right\')">&#10095;</button>\
+                 <div class="clearfix"></div>\
+                </div>\
+               </div>'
+    $(pageId).prepend(divstr);
+
+    $.get(baseUrl + "getrecforyou?id=" + userId + "&model=emb&size=" + size, function (data) {
+        $.each(data, function (i, game) {
+            appendGame2Row(rowId, game, baseUrl);
+        });
+    });
+}
+
+function addRecForYouPage(pageId, rowName, rowId, page, size, baseUrl, userId) {
+    var divstr = '<div class="frontpage-section-top"> \
+                <div class="explore-header frontpage-section-header">\
+                 <a class="plainlink" title="go to the full list" href="#">' + rowName + '</a> \
+                </div>\
+                <div class="movie-row">\
+                 <div class="movie-row-bounds">\
+                  <div class="movie-row-scrollable" id="' + rowId + '" style="margin-left: 0px; white-space: normal;">\
+                  </div>\
+                 </div>\
+                 <div class="clearfix"></div>\
+                </div>\
+               </div>';
+
+    $(pageId).html(divstr);
+
+    // Note: getrecforyou currently doesn't support pagination in the backend (RecForYouService), 
+    // but we can request a larger size and simulate it or just show what we have.
+    // For now, we'll just fetch a larger set.
+    $.get(baseUrl + "getrecforyou?id=" + userId + "&model=emb&size=" + (size * 5), function (data) {
+        $.each(data, function (i, game) {
+            appendGame2Row(rowId, game, baseUrl);
+        });
+    });
+}
+
 
 function addUserHistory(userId) {
     authFetch("./user/history?id=" + userId, {

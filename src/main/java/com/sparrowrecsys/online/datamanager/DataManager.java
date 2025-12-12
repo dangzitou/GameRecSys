@@ -259,9 +259,12 @@ public class DataManager {
                     String userRawEmbData = scanner.nextLine();
                     String[] userEmbData = userRawEmbData.split(":");
                     if (userEmbData.length == 2) {
-                        User u = getUserById(Integer.parseInt(userEmbData[0]));
+                        int userId = Integer.parseInt(userEmbData[0]);
+                        User u = getUserById(userId);
                         if (null == u) {
-                            continue;
+                            u = new User();
+                            u.setUserId(userId);
+                            this.userMap.put(userId, u);
                         }
                         u.setEmb(Utility.parseEmbStr(userEmbData[1]));
                         validEmbCount++;

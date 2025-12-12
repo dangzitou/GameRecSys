@@ -31,6 +31,14 @@ public class RecForYouService extends HttpServlet {
             String userId = request.getParameter("id");
             // number of returned games
             String size = request.getParameter("size");
+            int sizeInt = 12;
+            if (size != null && !size.isEmpty()) {
+                try {
+                    sizeInt = Integer.parseInt(size);
+                } catch (NumberFormatException e) {
+                    // ignore
+                }
+            }
             // ranking algorithm
             String model = request.getParameter("model");
 
@@ -39,7 +47,7 @@ public class RecForYouService extends HttpServlet {
             }
 
             // a simple method, just fetch all the games in the genre
-            List<GameItem> games = RecForYouProcess.getRecList(Integer.parseInt(userId), Integer.parseInt(size), model);
+            List<GameItem> games = RecForYouProcess.getRecList(Integer.parseInt(userId), sizeInt, model);
 
             // convert game list to json format and return
             ObjectMapper mapper = new ObjectMapper();
