@@ -2,6 +2,11 @@
 GameRecSys是一个游戏推荐系统（原为电影推荐系统），名字GameRecSys（Fork from [SparrowRecSys](https://github.com/wzhe06/SparrowRecSys)），取自“麻雀虽小，五脏俱全”之意。项目是一个基于maven的混合语言项目，同时包含了TensorFlow，Spark，Jetty Server等推荐系统的不同模块。
 
 > ⚠️ **协同开发提示**：请务必使用 `git clone` 命令拉取本项目代码，**不要**直接下载 ZIP 压缩包。直接下载 ZIP 会导致丢失 `.git` 目录，无法进行正常的版本控制和代码提交。
+>
+> **正确拉取方式：**
+> ```bash
+> git clone https://github.com/dangzitou/GameRecSys.git
+> ```
 
 ## 目录 (Table of Contents)
 - [环境要求](#环境要求)
