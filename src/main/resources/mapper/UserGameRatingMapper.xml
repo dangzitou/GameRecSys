@@ -39,6 +39,19 @@
     SELECT * FROM user_game_rating WHERE user_id = #{userId} ORDER BY timestamp DESC
   </select>
 
+  <select id="selectDTOByUserId" resultType="com.sparrowrecsys.online.model.UserRatingDTO">
+    SELECT 
+      r.game_id as gameId,
+      g.Name as gameName,
+      r.rating as rating,
+      r.timestamp as timestamp,
+      g.Header_image as headerImage
+    FROM user_game_rating r
+    LEFT JOIN game_data g ON r.game_id = g.AppID
+    WHERE r.user_id = #{userId}
+    ORDER BY r.timestamp DESC
+  </select>
+
   <select id="selectByGameId" resultMap="UserGameRatingResultMap">
     SELECT * FROM user_game_rating WHERE game_id = #{gameId} ORDER BY timestamp DESC
   </select>

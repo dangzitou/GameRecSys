@@ -156,5 +156,26 @@ public class RatingService {
 
         return result;
     }
-}
 
+    /**
+     * 获取用户评分历史（包含游戏信息）
+     */
+    public Map<String, Object> getUserRatingHistory(Integer userId) {
+        Map<String, Object> result = new HashMap<>();
+
+        try (SqlSession session = sqlSessionFactory.openSession()) {
+            UserGameRatingMapper mapper = session.getMapper(UserGameRatingMapper.class);
+            List<com.sparrowrecsys.online.model.UserRatingDTO> ratings = mapper.selectDTOByUserId(userId);
+
+            result.put("success", true);
+            result.put("ratings", ratings);
+            result.put("count", ratings.size());
+        } catch (Exception e) {
+            logger.error("Get user rating history failed for user {}", userId, e);
+            result.put("success", false);
+            result.put("message", "获取用户评分历史失败: " + e.getMessage());
+        }
+
+        return result;
+    }
+}

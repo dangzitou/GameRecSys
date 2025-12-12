@@ -14,16 +14,16 @@ from pyspark.sql import functions as F
 
 class UdfFunction:
     @staticmethod
-    def sortF(movie_list, timestamp_list):
+    def sortF(game_list, timestamp_list):
         """
-        sort by time and return the corresponding movie sequence
+        sort by time and return the corresponding game sequence
         eg:
-            input: movie_list:[1,2,3]
+            input: game_list:[1,2,3]
                    timestamp_list:[1112486027,1212546032,1012486033]
             return [3,1,2]
         """
         pairs = []
-        for m, t in zip(movie_list, timestamp_list):
+        for m, t in zip(game_list, timestamp_list):
             pairs.append((m, t))
         # sort by time
         pairs = sorted(pairs, key=lambda x: x[1])
@@ -38,45 +38,52 @@ def processItemSequence(spark, rawSampleDataPath):
     sortUdf = udf(UdfFunction.sortF, ArrayType(StringType()))
     userSeq = ratingSamples \
         .where(F.col("rating") >= 3.5) \
-        .groupBy("userId") \
-        .agg(sortUdf(F.collect_list("movieId"), F.collect_list("timestamp")).alias('movieIds')) \
-        .withColumn("movieIdStr", array_join(F.col("movieIds"), " "))
-    # userSeq.select("userId", "movieIdStr").show(10, truncate = False)
-    return userSeq.select('movieIdStr').rdd.map(lambda x: x[0].split(' '))
+        .groupBy("user_id") \
+        .agg(sortUdf(F.collect_list("game_id"), F.collect_list("timestamp")).alias('gameIds')) \
+        .withColumn("gameIdStr", array_join(F.col("gameIds"), " "))
+    # userSeq.select("user_id", "gameIdStr").show(10, truncate = False)
+    return userSeq.select('gameIdStr').rdd.map(lambda x: x[0].split(' '))
 
 
-def embeddingLSH(spark, movieEmbMap):
-    movieEmbSeq = []
-    for key, embedding_list in movieEmbMap.items():
+def embeddingLSH(spark, gameEmbMap):
+    gameEmbSeq = []
+    for key, embedding_list in gameEmbMap.items():
         embedding_list = [np.float64(embedding) for embedding in embedding_list]
-        movieEmbSeq.append((key, Vectors.dense(embedding_list)))
-    movieEmbDF = spark.createDataFrame(movieEmbSeq).toDF("movieId", "emb")
+        gameEmbSeq.append((key, Vectors.dense(embedding_list)))
+    gameEmbDF = spark.createDataFrame(gameEmbSeq).toDF("gameId", "emb")
     bucketProjectionLSH = BucketedRandomProjectionLSH(inputCol="emb", outputCol="bucketId", bucketLength=0.1,
                                                       numHashTables=3)
-    bucketModel = bucketProjectionLSH.fit(movieEmbDF)
-    embBucketResult = bucketModel.transform(movieEmbDF)
-    print("movieId, emb, bucketId schema:")
+    bucketModel = bucketProjectionLSH.fit(gameEmbDF)
+    embBucketResult = bucketModel.transform(gameEmbDF)
+    print("gameId, emb, bucketId schema:")
     embBucketResult.printSchema()
-    print("movieId, emb, bucketId data result:")
+    print("gameId, emb, bucketId data result:")
     embBucketResult.show(10, truncate=False)
     print("Approximately searching for 5 nearest neighbors of the sample embedding:")
     sampleEmb = Vectors.dense(0.795, 0.583, 1.120, 0.850, 0.174, -0.839, -0.0633, 0.249, 0.673, -0.237)
-    bucketModel.approxNearestNeighbors(movieEmbDF, sampleEmb, 5).show(truncate=False)
+    bucketModel.approxNearestNeighbors(gameEmbDF, sampleEmb, 5).show(truncate=False)
 
 
 def trainItem2vec(spark, samples, embLength, embOutputPath, saveToRedis, redisKeyPrefix):
-    word2vec = Word2Vec().setVectorSize(embLength).setWindowSize(5).setNumIterations(10)
+    # Set minCount to 1 because our dummy dataset is small and sparse
+    word2vec = Word2Vec().setVectorSize(embLength).setWindowSize(5).setNumIterations(10).setMinCount(1)
     model = word2vec.fit(samples)
-    synonyms = model.findSynonyms("158", 20)
-    for synonym, cosineSimilarity in synonyms:
-        print(synonym, cosineSimilarity)
+    
+    # Try to find synonyms for a sample game ID (e.g. 105450) if it exists in the model
+    try:
+        synonyms = model.findSynonyms("105450", 20)
+        for synonym, cosineSimilarity in synonyms:
+            print(synonym, cosineSimilarity)
+    except Exception as e:
+        print(f"Could not find synonyms for sample game ID: {e}")
+
     embOutputDir = '/'.join(embOutputPath.split('/')[:-1])
     if not os.path.exists(embOutputDir):
         os.makedirs(embOutputDir)
     with open(embOutputPath, 'w') as f:
-        for movie_id in model.getVectors():
-            vectors = " ".join([str(emb) for emb in model.getVectors()[movie_id]])
-            f.write(movie_id + ":" + vectors + "\n")
+        for game_id in model.getVectors():
+            vectors = " ".join([str(emb) for emb in model.getVectors()[game_id]])
+            f.write(game_id + ":" + vectors + "\n")
     embeddingLSH(spark, model.getVectors())
     return model
 
@@ -169,13 +176,13 @@ def generateUserEmb(spark, rawSampleDataPath, model, embLength, embOutputPath, s
     for key, value in model.getVectors().items():
         Vectors_list.append((key, list(value)))
     fields = [
-        StructField('movieId', StringType(), False),
+        StructField('game_id', StringType(), False),
         StructField('emb', ArrayType(FloatType()), False)
     ]
     schema = StructType(fields)
     Vectors_df = spark.createDataFrame(Vectors_list, schema=schema)
-    ratingSamples = ratingSamples.join(Vectors_df, on='movieId', how='inner')
-    result = ratingSamples.select('userId', 'emb').rdd.map(lambda x: (x[0], x[1])) \
+    ratingSamples = ratingSamples.join(Vectors_df, on='game_id', how='inner')
+    result = ratingSamples.select('user_id', 'emb').rdd.map(lambda x: (x[0], x[1])) \
         .reduceByKey(lambda a, b: [a[i] + b[i] for i in range(len(a))]).collect()
     with open(embOutputPath, 'w') as f:
         for row in result:
@@ -184,18 +191,43 @@ def generateUserEmb(spark, rawSampleDataPath, model, embLength, embOutputPath, s
 
 
 if __name__ == '__main__':
+    # Set python executable for Spark worker to ensure consistency
+    import sys
+    os.environ['PYSPARK_PYTHON'] = sys.executable
+    os.environ['PYSPARK_DRIVER_PYTHON'] = sys.executable
+
     conf = SparkConf().setAppName('ctrModel').setMaster('local')
     spark = SparkSession.builder.config(conf=conf).getOrCreate()
+    
     # Change to your own filepath
-    file_path = 'file:///home/hadoop/SparrowRecSys/src/main/resources'
-    rawSampleDataPath = file_path + "/webroot/sampledata/ratings.csv"
+    # Use os.getcwd() to get the current working directory, assuming script is run from project root
+    # Or you can hardcode the project root path here if you prefer
+    project_root = os.getcwd()
+    # Ensure we are using forward slashes for compatibility
+    project_root = project_root.replace("\\", "/")
+    
+    # Define resource paths relative to project root
+    # Note: Spark on Windows sometimes needs 'file:///' prefix for local files
+    file_prefix = "file:///"
+    
+    rawSampleDataPath = file_prefix + project_root + "/src/main/resources/webroot/sampledata/ratings.csv"
+    
+    # Output paths
+    modelDataDir = project_root + "/src/main/resources/webroot/modeldata"
+    
+    print(f"Reading data from: {rawSampleDataPath}")
+    print(f"Outputting models to: {modelDataDir}")
+
     embLength = 10
     samples = processItemSequence(spark, rawSampleDataPath)
+    
     model = trainItem2vec(spark, samples, embLength,
-                          embOutputPath=file_path[7:] + "/webroot/modeldata2/item2vecEmb.csv", saveToRedis=False,
+                          embOutputPath=modelDataDir + "/item2vecEmb.csv", saveToRedis=False,
                           redisKeyPrefix="i2vEmb")
-    graphEmb(samples, spark, embLength, embOutputFilename=file_path[7:] + "/webroot/modeldata2/itemGraphEmb.csv",
+    
+    graphEmb(samples, spark, embLength, embOutputFilename=modelDataDir + "/itemGraphEmb.csv",
              saveToRedis=True, redisKeyPrefix="graphEmb")
+    
     generateUserEmb(spark, rawSampleDataPath, model, embLength,
-                    embOutputPath=file_path[7:] + "/webroot/modeldata2/userEmb.csv", saveToRedis=False,
+                    embOutputPath=modelDataDir + "/userEmb.csv", saveToRedis=False,
                     redisKeyPrefix="uEmb")

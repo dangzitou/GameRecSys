@@ -82,7 +82,7 @@ public class RecSysServer {
         // For now, let's keep loading it to avoid breaking other endpoints until they
         // are refactored.)
         DataManager.getInstance().loadData(webRootPath + "sampledata/games_filtered.csv",
-                "", "", "", "", "i2vEmb", "uEmb");
+                "", "", webRootPath + "modeldata/item2vecEmb.csv", "", "i2vEmb", "uEmb");
 
         // Verify data loaded (Legacy check)
         List<GameItem> check = DataManager.getInstance().getGames(10, "positiveReviews");
@@ -109,6 +109,8 @@ public class RecSysServer {
         context.addServlet(new ServletHolder(new SearchService()), "/search");
         context.addServlet(new ServletHolder(new AuthController()), "/auth/*");
         context.addServlet(new ServletHolder(new RatingController()), "/rating");
+        context.addServlet(new ServletHolder(new com.sparrowrecsys.online.controller.UserHistoryController()),
+                "/user/history");
 
         // set url handler
         server.setHandler(context);

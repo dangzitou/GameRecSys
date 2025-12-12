@@ -557,6 +557,9 @@ function showLoggedInState(user) {
     var displayName = user.nickname || user.username || '用户';
     $('#userName').text(displayName);
     $('#userAvatar').text(displayName.charAt(0).toUpperCase());
+
+    // Update Personal Center link with user ID
+    $('.user-dropdown-item[href="./user.html"]').attr('href', './user.html?id=' + user.id);
 }
 
 // Show guest state
@@ -937,4 +940,96 @@ function showRatingToast(message) {
             toast.remove();
         }, 300);
     }, 2000);
+}
+
+function addUserDetails(user) {
+    renderUserInfo(user);
+    addRecForYou(user.userId);
+    addUserHistory(user.userId);
+}
+
+function renderUserInfo(user) {
+    $("#user-name").text(user.nickname || user.username || user.userId || "User");
+    $("#user-id-display").text(user.userId);
+    var initial = (user.nickname || user.username || user.userId || "U").toString().charAt(0).toUpperCase();
+    $("#user-avatar-display").text(initial);
+}
+
+function addRecForYou(userId) {
+    $.get("./recforyou?id=" + userId + "&model=item2vec", function (data) {
+        $("#rec-for-you").empty();
+        $.each(data, function (i, game) {
+            var row = createGameCardHtml(game);
+            $("#rec-for-you").append(row);
+        });
+    });
+}
+
+function addUserHistory(userId) {
+    authFetch("./user/history?id=" + userId, {
+        method: 'GET',
+        success: function (response) {
+            $("#user-history").empty();
+            if (response.success && response.ratings) {
+                $("#rated-games-count").text(response.count || response.ratings.length);
+                $.each(response.ratings, function (i, game) {
+                    var row = createHistoryCardHtml(game);
+                    $("#user-history").append(row);
+                });
+            } else {
+                $("#user-history").html('<p>No history found.</p>');
+            }
+        },
+        error: function() {
+             $("#user-history").html('<p>Failed to load history.</p>');
+        }
+    });
+}
+
+function createGameCardHtml(game) {
+    var id = game.gameId || game.appId;
+    var title = game.title || game.name || game.gameName;
+    var image = game.headerImage || ('./posters/' + id + '.jpg');
+    
+    return `
+    <div class="game-card-new">
+        <a href="game.html?id=${id}">
+            <img src="${image}" class="game-card-poster" alt="${title}" onerror="this.src='./images/default_poster.jpg'">
+        </a>
+        <div class="game-card-content">
+            <div class="game-card-title" title="${title}">${title}</div>
+            <div class="game-card-meta">
+                <span>Rec</span>
+            </div>
+        </div>
+    </div>
+    `;
+}
+
+function createHistoryCardHtml(game) {
+    var id = game.gameId;
+    var title = game.gameName;
+    var image = game.headerImage || ('./posters/' + id + '.jpg');
+    var date = new Date(game.timestamp * 1000).toLocaleDateString();
+    var rating = game.rating;
+    
+    return `
+    <div class="game-card-new">
+        <a href="game.html?id=${id}">
+            <img src="${image}" class="game-card-poster" alt="${title}" onerror="this.src='./images/default_poster.jpg'">
+        </a>
+        <div class="game-card-content">
+            <div class="game-card-title" title="${title}">${title}</div>
+            <div class="game-card-meta">
+                <span class="user-rating-display">★ ${rating}</span>
+                <span class="date-display">${date}</span>
+            </div>
+        </div>
+    </div>
+    `;
+}
+
+// Deprecated but kept for compatibility if needed
+function appendHistoryGame2Row(game) {
+    $("#user-history").append(createHistoryCardHtml(game));
 }

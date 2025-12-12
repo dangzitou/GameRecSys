@@ -36,6 +36,11 @@ public interface UserGameRatingMapper {
     List<UserGameRating> selectByUserId(@Param("userId") Integer userId);
 
     /**
+     * 查询用户的所有评分 (DTO)
+     */
+    List<com.sparrowrecsys.online.model.UserRatingDTO> selectDTOByUserId(@Param("userId") Integer userId);
+
+    /**
      * 查询游戏的所有评分
      */
     List<UserGameRating> selectByGameId(@Param("gameId") Integer gameId);
@@ -70,4 +75,3 @@ public interface UserGameRatingMapper {
      */
     int countAll();
 }
-
