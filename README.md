@@ -1,6 +1,22 @@
 # GameRecSys
 GameRecSys是一个游戏推荐系统（原为电影推荐系统），名字GameRecSys（Fork from [SparrowRecSys](https://github.com/wzhe06/SparrowRecSys)），取自“麻雀虽小，五脏俱全”之意。项目是一个基于maven的混合语言项目，同时包含了TensorFlow，Spark，Jetty Server等推荐系统的不同模块。
 
+## 目录 (Table of Contents)
+- [环境要求](#环境要求)
+- [快速开始](#快速开始)
+  - [1. 数据库配置](#1-数据库配置)
+  - [2. 启动项目](#2-启动项目)
+  - [3. 访问系统](#3-访问系统)
+- [项目数据](#项目数据)
+- [项目进度与计划](#项目进度与计划)
+  - [已实现功能 (Implemented)](#已实现功能-implemented)
+  - [待实现功能 (Todo List)](#待实现功能-todo-list)
+  - [最近更新 (Recent Updates)](#最近更新-recent-updates)
+- [SparrowRecSys技术架构](#sparrowrecsys技术架构)
+- [SparrowRecSys实现的深度学习模型](#sparrowrecsys实现的深度学习模型)
+- [相关论文](#相关论文)
+- [其他相关资源](#其他相关资源)
+
 ## 环境要求
 * Java 8+
 * Maven 3+
