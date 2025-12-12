@@ -667,7 +667,8 @@ function handleLogin(event) {
 
                 setTimeout(function () {
                     closeAuthModal();
-                    showLoggedInState(response.user);
+                    // Reload page to update recommendations
+                    window.location.reload();
                 }, 1000);
             } else {
                 showAuthMessage(response.message || '登录失败', 'error');
@@ -755,7 +756,8 @@ function handleLogout() {
     localStorage.removeItem('authToken');
     localStorage.removeItem('userInfo');
     $('#userDropdown').removeClass('show');
-    showGuestState();
+    // Reload page to clear user specific data
+    window.location.reload();
 }
 
 // Get auth token for API calls
